@@ -1,0 +1,149 @@
+#!/usr/local/bin/python2.7
+# encoding: utf-8
+'''
+@author:     Kyle Monson
+'''
+
+import sys
+import os
+
+from argparse import ArgumentParser
+from argparse import RawDescriptionHelpFormatter
+
+from protein import Protein
+# from graph import ProteinGraph
+from pprint import pprint
+# from uncertainy import resolve_uncertainty
+from titration_curve import get_titration_curves
+from create_titration_output import create_output
+
+__all__ = []
+__version__ = 0.1
+__date__ = '2015-05-07'
+__updated__ = '2015-05-07'
+
+DEBUG = 1
+PROFILE = 0
+
+class CLIError(Exception):
+    '''Generic exception to raise and log different fatal errors.'''
+    def __init__(self, msg):
+        super(CLIError).__init__(type(self))
+        self.msg = "E: %s" % msg
+    def __str__(self):
+        return self.msg
+    def __unicode__(self):
+        return self.msg
+
+INTERACTION_BASE_FILENAME = "INTERACTION_MATRIX.DAT"
+DESOLVATION_BASE_FILENAME = "desolvation_energies.txt"
+BACKGROUND_BASE_FILENAME = "background_interaction_energies.txt"
+
+def main(argv=None): # IGNORE:C0111
+    '''Command line options.'''
+
+    if argv is None:
+        argv = sys.argv
+    else:
+        sys.argv.extend(argv)
+
+    program_name = os.path.basename(sys.argv[0])
+    program_version = "v%s" % __version__
+    program_build_date = str(__updated__)
+    program_version_message = '%%(prog)s %s (%s)' % (program_version, program_build_date)
+    program_shortdesc = __import__('__main__').__doc__.split("\n")[1]
+    program_license = '''%s
+
+  Created by Kyle Monson on %s.
+  Copyright 2015 Pacific Northwest National Laboratory. All rights reserved.
+
+  Licensed under the Apache License 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Distributed on an "AS IS" basis without warranties
+  or conditions of any kind, either express or implied.
+
+USAGE
+''' % (program_shortdesc, str(__date__))
+
+    try:
+        # Setup argument parser
+        parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
+        parser.add_argument("-v", "--verbose", dest="verbose", action="count", help="set verbosity level [default: %(default)s]")
+        parser.add_argument('-V', '--version', action='version', version=program_version_message)
+        parser.add_argument(dest="input", help="path to input folder", metavar="input_path")
+        parser.add_argument(dest="output", help="paths to output folder", metavar="output_path")
+        parser.add_argument("--test", action='store_true', default=False, help="Run basic sanity tests using selected input.")
+
+        # Process arguments
+        args = parser.parse_args()
+
+        input_path = args.input
+        output_path = args.output
+        verbose = args.verbose
+
+        if verbose > 0:
+            print("Verbose mode on")
+
+        try:
+            if verbose > 0:
+                print("Creating output directory")
+            os.makedirs(output_path)
+        except os.error:
+            if verbose > 0:
+                print("Output directory already exists.")
+
+        interaction_filepath = os.path.join(input_path, INTERACTION_BASE_FILENAME)
+        background_filepath = os.path.join(input_path, BACKGROUND_BASE_FILENAME)
+        desolvation_filepath = os.path.join(input_path, DESOLVATION_BASE_FILENAME)
+
+        with open(interaction_filepath) as interaction_file, \
+             open(background_filepath) as background_file, \
+             open(desolvation_filepath) as desolvation_file:
+            protein = Protein(interaction_file, desolvation_file, background_file)
+
+#         pg = ProteinGraph(protein.protein_complex)
+#
+#         pg.update_edges()
+#         cv, s_nodes, t_nodes = pg.get_cut()
+#         labeling, uncertain = pg.get_labeling_from_cut(s_nodes, t_nodes)
+#
+#         pprint(labeling)
+#         pprint(uncertain)
+#
+#         new_labeling = resolve_uncertainty(protein.protein_complex, labeling, uncertain)
+#         pprint(new_labeling)
+#         print protein.protein_complex.evaluate_energy(new_labeling)
+
+        curves = get_titration_curves(protein.protein_complex)
+
+        create_output(output_path, curves)
+
+        #pprint(dict(curves))
+
+        if args.test:
+            import tests
+            tests.test_normalize(protein)
+
+        return 0
+    except KeyboardInterrupt, e:
+        ### handle keyboard interrupt ###
+        if DEBUG:
+            raise(e)
+        return 0
+
+if __name__ == "__main__":
+    if DEBUG:
+        sys.argv.append("-v")
+    if PROFILE:
+        import cProfile
+        import pstats
+        profile_filename = 'main_profile.txt'
+        cProfile.run('main()', profile_filename)
+        statsfile = open("profile_stats.txt", "wb")
+        p = pstats.Stats(profile_filename, stream=statsfile)
+        stats = p.strip_dirs().sort_stats('cumulative')
+        stats.print_stats()
+        statsfile.close()
+        sys.exit(0)
+    sys.exit(main())
