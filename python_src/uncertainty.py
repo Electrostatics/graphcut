@@ -4,7 +4,7 @@ import random
 random.seed("Mmmmm, sandwiches...")
 
 
-def resolve_uncertainty(protein_complex, labeling, uncertain, brute_force_limit=12):
+def resolve_uncertainty(protein_complex, labeling, uncertain, brute_force_limit=20):
 
     final_labeling = labeling.copy()
 
@@ -47,8 +47,8 @@ def monte_carlo(pc, labeling, uncertain):
     test_labeling = labeling.copy()
     #iterations = min(10000, 2 ** (len(uncertain) - 1))
     #iterations = max(iterations, 1)
-    iterations = 500
-    sub_iterations = 200
+    iterations = 1000
+    sub_iterations = 500
 
     for _ in xrange(iterations):
         test_states = (random.choice(state_pair) for state_pair in state_pairs)
