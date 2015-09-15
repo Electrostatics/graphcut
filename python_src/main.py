@@ -102,19 +102,6 @@ USAGE
              open(desolvation_filepath) as desolvation_file:
             protein = Protein(interaction_file, desolvation_file, background_file)
 
-#         pg = ProteinGraph(protein.protein_complex)
-#
-#         pg.update_edges()
-#         cv, s_nodes, t_nodes = pg.get_cut()
-#         labeling, uncertain = pg.get_labeling_from_cut(s_nodes, t_nodes)
-#
-#         pprint(labeling)
-#         pprint(uncertain)
-#
-#         new_labeling = resolve_uncertainty(protein.protein_complex, labeling, uncertain)
-#         pprint(new_labeling)
-#         print protein.protein_complex.evaluate_energy(new_labeling)
-
         curves = get_titration_curves(protein.protein_complex)
 
         create_output(output_path, curves)
@@ -123,7 +110,8 @@ USAGE
 
         if args.test:
             import tests
-            tests.test_normalize(protein)
+            #tests.test_normalize(protein)
+            tests.test_stuff(protein)
 
         return 0
     except KeyboardInterrupt, e:
