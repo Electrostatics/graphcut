@@ -3,13 +3,10 @@ from itertools import combinations
 
 class ProteinGraph(object):
     def __init__(self, protein_complex):
-        self.DG = nx.DiGraph()
         self.pc = protein_complex
 
-        self._build_nodes()
-
     def _build_nodes(self):
-
+        self.DG = nx.DiGraph()
         self.DG.add_node("S")
         self.DG.add_node("T")
 
@@ -17,10 +14,8 @@ class ProteinGraph(object):
             self.DG.add_node(key+("PROTONATED",))
             self.DG.add_node(key+("DEPROTONATED",))
 
-    def update_edges(self):
-        #Wipe existing edges.
-        self.DG.succ.clear()
-        self.DG.pred.clear()
+    def update_graph(self):
+        self._build_nodes()
 
         for key, v in self.pc.residue_variables.iteritems():
             prot_instance = v.instances["PROTONATED"]
