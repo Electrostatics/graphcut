@@ -2,6 +2,7 @@ from graph import ProteinGraph
 from uncertainty import resolve_uncertainty
 from collections import defaultdict
 import math
+from pprint import pprint
 
 gas_constant = 8.3144621
 #ln(10) * gas constant
@@ -29,13 +30,21 @@ def get_titration_curves(protein_complex):
 
     for step in xrange(steps):
         pH = step * 0.1
-        print "Processing pH:", pH
+        print "pH", pH
+        #print "Processing pH:", pH
         protein_complex.normalize(pH)
-        pg.update_edges()
+        pg.update_graph()
 
         cv, s_nodes, t_nodes = pg.get_cut()
         labeling, uncertain = pg.get_labeling_from_cut(s_nodes, t_nodes)
-        new_labeling = resolve_uncertainty(protein_complex, labeling, uncertain)
+
+        print "Uncertain"
+        pprint(uncertain)
+        new_labeling = resolve_uncertainty(protein_complex, labeling, uncertain, verbose=True)
+
+
+        pprint(new_labeling)
+        print "Min energy", protein_complex.evaluate_energy(new_labeling, True)
 
         curve_values = get_curve_values(protein_complex, new_labeling, pH)
         for key, value in curve_values.iteritems():
