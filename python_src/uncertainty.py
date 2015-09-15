@@ -4,20 +4,23 @@ import random
 random.seed("Mmmmm, sandwiches...")
 
 
-def resolve_uncertainty(protein_complex, labeling, uncertain, brute_force_limit=20):
+def resolve_uncertainty(protein_complex, labeling, uncertain, brute_force_limit=20, verbose=False):
 
     final_labeling = labeling.copy()
 
     if not uncertain:
         return final_labeling
 
-    print "Uncertain count:", len(uncertain)
+    if verbose:
+        print "Uncertain count:", len(uncertain)
 
     if len(uncertain) > brute_force_limit:
-        print "Using Monte Carlo"
+        if verbose:
+            print "Using Monte Carlo"
         return monte_carlo(protein_complex, final_labeling, uncertain)
     else:
-        print "Using brute force"
+        if verbose:
+            print "Using brute force"
         return brute_force(protein_complex, final_labeling, uncertain)
 
 
