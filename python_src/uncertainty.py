@@ -5,6 +5,11 @@ random.seed("Mmmmm, sandwiches...")
 
 
 def resolve_uncertainty(protein_complex, labeling, uncertain, brute_force_limit=20, verbose=False):
+    """Resolves all uncertain residue states using either brute force or a MC
+       protein_complex - ProteinComplex instance for the protein
+       labeling - ResidueVariable instance to ResidueInstance instance map for certain residue states
+       uncertain - list of uncertain ResidueVariable instances
+       brute_force_limit - limit of the number of uncertain residues before falling back to MC."""
 
     final_labeling = labeling.copy()
 
@@ -25,6 +30,8 @@ def resolve_uncertainty(protein_complex, labeling, uncertain, brute_force_limit=
 
 
 def brute_force(pc, labeling, uncertain):
+    """Iterate through all possible combinations of uncertain
+       residue states picking the one that produces the best results."""
     result_labeling = None
     best_energy = sys.float_info.max
 
@@ -42,6 +49,21 @@ def brute_force(pc, labeling, uncertain):
 
 
 def monte_carlo(pc, labeling, uncertain):
+    """
+    Pseudo code for the MC:
+     Set starting best energy to the system max float value
+     For each step in the MC
+         Randomly assign states to the uncertain residues
+         For each sub step in the MC
+             Choose a random uncertain residue
+             Choose the state of that residue that minimizes the total energy
+             If both states result in the same energy
+                 Choose a random state
+         If the current total energy for the resulting is less than the best energy
+             Save the current state as the new best state
+             Save the current total energy at the new best energy
+     Return the current best state.
+    """
     result_labeling = None
     best_energy = sys.float_info.max
 
