@@ -25,16 +25,6 @@ __updated__ = '2015-05-07'
 DEBUG = 1
 PROFILE = 0
 
-class CLIError(Exception):
-    '''Generic exception to raise and log different fatal errors.'''
-    def __init__(self, msg):
-        super(CLIError).__init__(type(self))
-        self.msg = "E: %s" % msg
-    def __str__(self):
-        return self.msg
-    def __unicode__(self):
-        return self.msg
-
 INTERACTION_BASE_FILENAME = "INTERACTION_MATRIX.DAT"
 DESOLVATION_BASE_FILENAME = "desolvation_energies.txt"
 BACKGROUND_BASE_FILENAME = "background_interaction_energies.txt"
