@@ -1,6 +1,8 @@
 
 from itertools import combinations, product, permutations
 
+from collections import OrderedDict
+
 from pprint import pprint
 import sys
 
@@ -70,7 +72,7 @@ class ResidueInstance(object):
 class ResidueVariable(object):
     def __init__(self, name):
         self.name = name
-        self.instances = {}
+        self.instances = OrderedDict()
 
     def get_instance(self, state):
         if state not in all_tautomers:
@@ -105,8 +107,8 @@ class ProteinComplex(object):
     def __init__(self, T=300):
         self.T = T
         self.normalized_constant_energy = 0.0
-        self.residue_variables = {}
-        self.interaction_energies = {}
+        self.residue_variables = OrderedDict()
+        self.interaction_energies = OrderedDict()
         self.normalized_interaction_energies = None
 
     def add_residue(self, residue_type, chain, location):
@@ -177,12 +179,7 @@ class ProteinComplex(object):
 
         self.divide_his()
 
-#         pprint(self.interaction_energies)
-#         for residue in self.residue_variables.itervalues():
-#             prot = residue.instances["DEPROTONATED"]
-#             deprot = residue.instances["PROTONATED"]
-#             print prot, prot.energy
-#             print deprot, deprot.energy
+
 
     def update_special_instance_energies(self):
         """After we have loaded the backgroind and desolvation files we need to
@@ -649,5 +646,27 @@ class ProteinComplex(object):
 #             deprot = residue.instances["PROTONATED"]
 #             print prot, prot.energyNF
 #             print deprot, deprot.energyNF
+
+
+    def energy_at_pH(self, pH):
+        """Create a representation of the protein energy at the specified pH
+        Used primarily for testing."""
+        self.interaction_energies_for_ph = self.interaction_energies.copy()
+
+        for residue in self.residue_variables.itervalues():
+            residue.instances["DEPROTONATED"].energy_with_ph = residue.instances["DEPROTONATED"].energy
+            residue.instances["PROTONATED"].energy_with_ph = residue.instances["PROTONATED"].energy + pH
+
+
+        for v, w in combinations(self.residue_variables.iteritems(), 2):
+            v_key, v_residue = v
+            w_key, w_residue = w
+            is_same_his = (v_key[1:] == w_key[1:] and v_key[0] in ("HId", "HIe") and w_key[0] in ("HId", "HIe"))
+
+            if is_same_his:
+                v_prot = v_residue.instances["PROTONATED"]
+                w_prot = w_residue.instances["PROTONATED"]
+                self.interaction_energies_for_ph[v_prot, w_prot] -= 2.0*pH
+                self.interaction_energies_for_ph[w_prot, v_prot] -= 2.0*pH
 
 

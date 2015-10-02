@@ -75,3 +75,22 @@ def test_stuff(protein):
     print("Diff", abs(energy-norm_energy))
 
     assert abs(energy-norm_energy) < 0.00001
+
+
+def test_other_stuff(protein):
+    pc = protein.protein_complex
+    pc.energy_at_pH(10.0)
+    keys = pc.interaction_energies_for_ph.keys()
+    keys.sort()
+    for pair in keys:
+        print (pair, pc.interaction_energies_for_ph[pair])
+
+    keys = pc.residue_variables.keys()
+    keys.sort()
+
+    for key in keys:
+        residue = pc.residue_variables[key]
+        prot = residue.instances["DEPROTONATED"]
+        deprot = residue.instances["PROTONATED"]
+        print (prot, prot.energy_with_ph)
+        print (deprot, deprot.energy_with_ph)

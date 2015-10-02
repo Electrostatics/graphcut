@@ -92,16 +92,17 @@ USAGE
              open(desolvation_filepath) as desolvation_file:
             protein = Protein(interaction_file, desolvation_file, background_file)
 
-        curves = get_titration_curves(protein.protein_complex)
-
-        create_output(output_path, curves)
+#         curves = get_titration_curves(protein.protein_complex)
+#
+#         create_output(output_path, curves)
 
         #pprint(dict(curves))
 
         if args.test:
             import tests
             #tests.test_normalize(protein)
-            tests.test_stuff(protein)
+            #tests.test_stuff(protein)
+            tests.test_other_stuff(protein)
 
         return 0
     except KeyboardInterrupt, e:
