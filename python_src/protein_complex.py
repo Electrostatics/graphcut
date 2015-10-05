@@ -604,9 +604,15 @@ class ProteinComplex(object):
             residue.instances["PROTONATED"].energyNF = residue.instances["PROTONATED"].energy + pH
 
 
-        for v, w in combinations(self.residue_variables.iteritems(), 2):
-            v_key, v_residue = v
-            w_key, w_residue = w
+        rv = self.residue_variables
+        keys = rv.keys()
+
+        #keys.sort()
+
+        for v_key, w_key in combinations(keys, 2):
+            v_residue = rv[v_key]
+            w_residue = rv[w_key]
+
             is_same_his = (v_key[1:] == w_key[1:] and v_key[0] in ("HId", "HIe") and w_key[0] in ("HId", "HIe"))
 
             if is_same_his:
@@ -615,9 +621,10 @@ class ProteinComplex(object):
                 self.normalized_interaction_energies[v_prot, w_prot] -= 2.0*pH
                 self.normalized_interaction_energies[w_prot, v_prot] -= 2.0*pH
 
-        for v, w in permutations(self.residue_variables.iteritems(), 2):
-            v_key, v_residue = v
-            w_key, w_residue = w
+
+        for v_key, w_key in permutations(keys, 2):
+            v_residue = rv[v_key]
+            w_residue = rv[w_key]
 
             for v_instance in v_residue.instances.itervalues():
                 w_instances = w_residue.instances.values()
