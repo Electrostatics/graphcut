@@ -14,11 +14,14 @@ import java.util.Vector;
 import mathtools.MapleTools;
 import mathtools.Subsets;
 
+import org.jgrapht.WeightedGraph;
+import org.jgrapht.alg.EdmondsKarpMaximumFlow;
+import org.jgrapht.alg.MinSourceSinkCut;
+import org.jgrapht.alg.StoerWagnerMinimumCut;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 
 import filetools.WriteFile;
-
 import returntools.Tuple2;
 import syst.Instance;
 import syst.Systm;
@@ -424,19 +427,34 @@ public class BinaryGraph {
 	public HashMap<Variable,Instance> doCutNonAE(WriteFile main, WriteFile sec){
 		System.out.println("Doing the cut!");
 
-		EdmondsKarpMaxFlowMinCut<Variable, DefaultWeightedEdge> F = 
-				new EdmondsKarpMaxFlowMinCut<Variable, DefaultWeightedEdge>(graph);
-
+		MinSourceSinkCut<Variable, DefaultWeightedEdge> MSSC = 
+				new MinSourceSinkCut<Variable, DefaultWeightedEdge>(graph);
+		
+		EdmondsKarpMaximumFlow<Variable, DefaultWeightedEdge> F = 
+				new EdmondsKarpMaximumFlow<Variable, DefaultWeightedEdge>(graph);
+		
 		Vector<Variable> vars = sys.getVars();
 		Double constantNF = sys.getConstantNF();
 
-		F.calculateMinimumCut(source, sink);
-		F.calculateMinimumCutValue();
-
+//		F.calculateMinimumCut(source, sink);
+//		F.calculateMinimumCutValue();
+		F.calculateMaximumFlow(source, sink);
+		MSSC.computeMinCut(source, sink);
+		
 		System.out.println();
 
-		Map <Variable,Integer> minCut = F.getMinimumCut();
-		Double minCutValue = F.getMinimumCutValue();
+//		Map <Variable,Integer> minCut = F.getMinimumCut();
+		Set<Variable> SRC = MSSC.getSourcePartition();
+		Set<Variable> SNK = MSSC.getSinkPartition();
+		
+//		Double minCutValue = F.getMinimumCutValue();
+		Double minCutValue = MSSC.getCutWeight();
+
+		if (minCutValue - F.getMaximumFlowValue() > 0.00001){
+			throw new IllegalArgumentException(
+					"maxflow != mincut");
+		}
+		
 		Vector<Variable> S = new Vector<Variable>();
 		Vector<Variable> T = new Vector<Variable>();
 		Vector<Variable> U = new Vector<Variable>();
@@ -446,11 +464,13 @@ public class BinaryGraph {
 		HashMap<Variable,Instance> varHM = new HashMap<Variable,Instance>();
 		while (it.hasNext()){
 			Variable gr = it.next();
-			if (minCut.get(gr) == 0 && minCut.get(gr.getHat()) == 1){
+//			if (minCut.get(gr) == 0 && minCut.get(gr.getHat()) == 1){
+			if (SRC.contains(gr) && SNK.contains(gr.getHat())){
 				S.add(gr);
 				varSeq[ind] = 0;
 				varHM.put(gr, gr.getInstances().get(0));
-			}else if (minCut.get(gr) == 1 && minCut.get(gr.getHat())==0){
+//			}else if (minCut.get(gr) == 1 && minCut.get(gr.getHat())==0){
+			}else if (SNK.contains(gr) && SRC.contains(gr.getHat())){
 				T.add(gr);
 				varSeq[ind] = 1;
 				varHM.put(gr, gr.getInstances().get(1));
@@ -463,9 +483,13 @@ public class BinaryGraph {
 		}
 
 		main.writeln("RESULTS");
+//		main.writeln("flow: "+F.getMaximumFlow().toString());
 		main.writeln("flow: "+F.getMaximumFlow().toString());
 		main.writeln("flow value: "+F.getMaximumFlowValue().toString());
-		main.writeln("cut: "+minCut.toString());
+//		main.writeln("cut: "+minCut.toString());
+		main.writeln("cut:");
+		main.writeln("  SRC = "+SRC.toString());
+		main.writeln("  SNK = "+SNK.toString());
 		main.writeln("cut value: "+minCutValue);
 
 		//System.out.println("cut constant: "+constantNF);

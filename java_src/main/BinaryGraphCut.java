@@ -54,6 +54,26 @@ public class BinaryGraphCut {
 			System.out.println("Can't do binary graph cut, Systm isn't binary.");
 		}else{
 			sys.makeNF();
+			////////////////////// comment out eventually
+			wr.write("Instance REGULAR energies: ");
+			for (Variable var : sys.getVars()){
+				for (Instance inst : var.getInstances()){
+					wr.write(inst.toString()+" "+inst.getEnergy()+", ");
+				}
+			}
+			wr.writeln();
+			wr.writeln("Binary REGULAR energies: "+sys.getBinary().toString());
+			
+			wr.writeln("Constant NF energy: "+sys.getConstantNF());
+			wr.write("Instance NF energies: ");
+			for (Variable var : sys.getVars()){
+				for (Instance inst : var.getInstances()){
+					wr.write(inst.toString()+" "+inst.getEnergyNF()+", ");
+				}
+			}
+			wr.writeln();
+			wr.writeln("Binary NF energies: "+sys.getBinaryNF().toString());
+			//////////////////////
 			sysBiGr = new BinaryGraph(sys, false, wr);
 		}
 	}
