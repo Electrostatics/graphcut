@@ -4,6 +4,7 @@ import filetools.WriteFile;
 import graph.BinaryGraph;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.Vector;
 
 import syst.Instance;
@@ -54,26 +55,69 @@ public class BinaryGraphCut {
 			System.out.println("Can't do binary graph cut, Systm isn't binary.");
 		}else{
 			sys.makeNF();
-			////////////////////// comment out eventually
-			wr.write("Instance REGULAR energies: ");
+			
+			wr.writeln("REGULAR ENERGIES");
+			// binary
+			Set<Vector<Instance>> keys = sys.getBinary().keySet();
+			for (Vector<Instance> key : keys){
+				Instance key1 = key.get(0);
+				Instance key2 = key.get(1);
+				if (key1.getLabel().equals("PROT") && key2.getLabel().equals("PROT")){
+					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+sys.getBinary().get(key1, key2));
+				}else if (key1.getLabel().equals("PROT") && key2.getLabel().equals("DEPROT")){
+					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+sys.getBinary().get(key1, key2));
+				}else if (key1.getLabel().equals("DEPROT") && key2.getLabel().equals("PROT")){
+					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+sys.getBinary().get(key1, key2));
+				}else{
+					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+sys.getBinary().get(key1, key2));
+				}
+			}
+			// unary
 			for (Variable var : sys.getVars()){
 				for (Instance inst : var.getInstances()){
-					wr.write(inst.toString()+" "+inst.getEnergy()+", ");
+					if (inst.getLabel().equals("PROT")){
+						wr.writeln(inst.getName()+"_PROTONATED "+inst.getEnergy());
+					}else if (inst.getLabel().equals("DEPROT")){
+						wr.writeln(inst.getName()+"_DEPROTONATED "+inst.getEnergy());
+					}else{
+						wr.writeln(inst.toString()+"_OTHER "+inst.getEnergy());
+					}
 				}
 			}
 			wr.writeln();
-			wr.writeln("Binary REGULAR energies: "+sys.getBinary().toString());
 			
-			wr.writeln("Constant NF energy: "+sys.getConstantNF());
+			wr.writeln("NORMAL FORM ENERGIES");
+			// binary
+			Set<Vector<Instance>> keysNF = sys.getBinaryNF().keySet();
+			for (Vector<Instance> key : keysNF){
+				Instance key1 = key.get(0);
+				Instance key2 = key.get(1);
+				if (key1.getLabel().equals("PROT") && key2.getLabel().equals("PROT")){
+					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+sys.getBinaryNF().get(key1, key2));
+				}else if (key1.getLabel().equals("PROT") && key2.getLabel().equals("DEPROT")){
+					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+sys.getBinaryNF().get(key1, key2));
+				}else if (key1.getLabel().equals("DEPROT") && key2.getLabel().equals("PROT")){
+					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+sys.getBinaryNF().get(key1, key2));
+				}else{
+					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+sys.getBinaryNF().get(key1, key2));
+				}
+			}
+			// unary
 			wr.write("Instance NF energies: ");
 			for (Variable var : sys.getVars()){
 				for (Instance inst : var.getInstances()){
-					wr.write(inst.toString()+" "+inst.getEnergyNF()+", ");
+					if (inst.getLabel().equals("PROT")){
+						wr.writeln(inst.getName()+"_PROTONATED "+inst.getEnergyNF());
+					}else if (inst.getLabel().equals("DEPROT")){
+						wr.writeln(inst.getName()+"_DEPROTONATED "+inst.getEnergyNF());
+					}else{
+						wr.writeln(inst.toString()+"_OTHER "+inst.getEnergyNF());
+					}
 				}
 			}
-			wr.writeln();
-			wr.writeln("Binary NF energies: "+sys.getBinaryNF().toString());
-			//////////////////////
+			// constant
+			wr.writeln("Normalized constant energy: "+sys.getConstantNF());
+			
 			sysBiGr = new BinaryGraph(sys, false, wr);
 		}
 	}
