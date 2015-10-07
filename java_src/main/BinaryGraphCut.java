@@ -58,20 +58,43 @@ public class BinaryGraphCut {
 			
 			wr.writeln("REGULAR ENERGIES");
 			// binary
-			Set<Vector<Instance>> keys = sys.getBinary().keySet();
-			for (Vector<Instance> key : keys){
-				Instance key1 = key.get(0);
-				Instance key2 = key.get(1);
-				if (key1.getLabel().equals("PROT") && key2.getLabel().equals("PROT")){
-					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
-				}else if (key1.getLabel().equals("PROT") && key2.getLabel().equals("DEPROT")){
-					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
-				}else if (key1.getLabel().equals("DEPROT") && key2.getLabel().equals("PROT")){
-					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
-				}else{
-					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
+			for (Variable var1 : sys.getVars()){
+				for (Instance inst1 : var1.getInstances()){
+					for (Variable var2 : sys.getVars()){
+						if (var1.equals(var2))
+							continue;
+						for (Instance inst2 : var2.getInstances()){
+							if (inst1.getLabel().equals("PROT") && inst2.getLabel().equals("PROT")){
+								wr.writeln("("+inst1.getName()+"_PROTONATED, "+
+										inst2.getName()+"_PROTONATED) "+
+										Math.round(sys.getBinary().get(inst1, inst2)*10000.0)/10000.0);
+							}else if (inst1.getLabel().equals("PROT") && inst2.getLabel().equals("DEPROT")){
+								wr.writeln("("+inst1.getName()+"_PROTONATED, "+inst2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinary().get(inst1, inst2)*10000.0)/10000.0);
+							}else if (inst1.getLabel().equals("DEPROT") && inst2.getLabel().equals("PROT")){
+								wr.writeln("("+inst1.getName()+"_DEPROTONATED, "+inst2.getName()+"_PROTONATED) "+Math.round(sys.getBinary().get(inst1, inst2)*10000.0)/10000.0);
+							}else if (inst1.getLabel().equals("DEPROT") && inst2.getLabel().equals("DEPROT")){
+								wr.writeln("("+inst1.getName()+"_DEPROTONATED, "+inst2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinary().get(inst1, inst2)*10000.0)/10000.0);
+							}
+						}
+					}
 				}
+				
 			}
+			
+//			Set<Vector<Instance>> keys = sys.getBinary().keySet();
+//			for (Vector<Instance> key : keys){
+//				Instance key1 = key.get(0);
+//				Instance key2 = key.get(1);
+//				if (key1.getLabel().equals("PROT") && key2.getLabel().equals("PROT")){
+//					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
+//				}else if (key1.getLabel().equals("PROT") && key2.getLabel().equals("DEPROT")){
+//					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
+//				}else if (key1.getLabel().equals("DEPROT") && key2.getLabel().equals("PROT")){
+//					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
+//				}else{
+//					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
+//				}
+//			}
 			// unary
 			for (Variable var : sys.getVars()){
 				for (Instance inst : var.getInstances()){
@@ -88,22 +111,43 @@ public class BinaryGraphCut {
 			
 			wr.writeln("NORMAL FORM ENERGIES");
 			// binary
-			Set<Vector<Instance>> keysNF = sys.getBinaryNF().keySet();
-			for (Vector<Instance> key : keysNF){
-				Instance key1 = key.get(0);
-				Instance key2 = key.get(1);
-				if (key1.getLabel().equals("PROT") && key2.getLabel().equals("PROT")){
-					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
-				}else if (key1.getLabel().equals("PROT") && key2.getLabel().equals("DEPROT")){
-					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
-				}else if (key1.getLabel().equals("DEPROT") && key2.getLabel().equals("PROT")){
-					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
-				}else{
-					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
+			
+			for (Variable var1 : sys.getVars()){
+				for (Instance inst1 : var1.getInstances()){
+					for (Variable var2 : sys.getVars()){
+						if (var1.equals(var2))
+							continue;
+						for (Instance inst2 : var2.getInstances()){
+							if (inst1.getLabel().equals("PROT") && inst2.getLabel().equals("PROT")){
+								wr.writeln("("+inst1.getName()+"_PROTONATED, "+inst2.getName()+"_PROTONATED) "+Math.round(sys.getBinaryNF().get(inst1, inst2)*10000.0)/10000.0);
+							}else if (inst1.getLabel().equals("PROT") && inst2.getLabel().equals("DEPROT")){
+								wr.writeln("("+inst1.getName()+"_PROTONATED, "+inst2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinaryNF().get(inst1, inst2)*10000.0)/10000.0);
+							}else if (inst1.getLabel().equals("DEPROT") && inst2.getLabel().equals("PROT")){
+								wr.writeln("("+inst1.getName()+"_DEPROTONATED, "+inst2.getName()+"_PROTONATED) "+Math.round(sys.getBinaryNF().get(inst1, inst2)*10000.0)/10000.0);
+							}else if (inst1.getLabel().equals("DEPROT") && inst2.getLabel().equals("DEPROT")){
+								wr.writeln("("+inst1.getName()+"_DEPROTONATED, "+inst2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinaryNF().get(inst1, inst2)*10000.0)/10000.0);
+							}
+						}
+					}
 				}
+				
 			}
+			
+//			Set<Vector<Instance>> keysNF = sys.getBinaryNF().keySet();
+//			for (Vector<Instance> key : keysNF){
+//				Instance key1 = key.get(0);
+//				Instance key2 = key.get(1);
+//				if (key1.getLabel().equals("PROT") && key2.getLabel().equals("PROT")){
+//					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
+//				}else if (key1.getLabel().equals("PROT") && key2.getLabel().equals("DEPROT")){
+//					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
+//				}else if (key1.getLabel().equals("DEPROT") && key2.getLabel().equals("PROT")){
+//					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
+//				}else{
+//					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
+//				}
+//			}
 			// unary
-			wr.write("Instance NF energies: ");
 			for (Variable var : sys.getVars()){
 				for (Instance inst : var.getInstances()){
 					if (inst.getLabel().equals("PROT")){
