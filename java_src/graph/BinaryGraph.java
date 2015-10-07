@@ -5,10 +5,13 @@ import graphtools.EdmondsKarpMaxFlowMinCut;
 import hashtools.TwoKeyHash;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import mathtools.MapleTools;
@@ -423,7 +426,8 @@ public class BinaryGraph {
 		}
 
 	}
-
+	
+	// THE ONE THAT YOU WANT
 	public HashMap<Variable,Instance> doCutNonAE(WriteFile main, WriteFile sec){
 		System.out.println("Doing the cut!");
 
@@ -991,22 +995,71 @@ public class BinaryGraph {
 
 	public void printGraphCompact(WriteFile wr){
 		Set<Variable> vertices = graph.vertexSet(); 
-
-		String toPrint = " ";
-		toPrint = toPrint.concat(vertices.toString()+", {");
-		for(Variable v: vertices){
-			for(Variable w: vertices){
-				Set<DefaultWeightedEdge> edges = graph.getAllEdges(v, w);
+		
+		// sort the vertices alphabetically
+		Comparator<Variable> comparator = new Comparator<Variable>() {
+		  public int compare(Variable o1, Variable o2) {
+		    return o1.getName().toString().compareTo(o2.getName().toString());
+		  }
+		};
+		SortedSet<Variable> sorted_keys = new TreeSet<Variable>(comparator);
+		sorted_keys.addAll(vertices);
+		
+		// run through the vertices to print
+		String toPrintVerts = "Vertices:\n";
+		String toPrintEdges = "Edges:\n";
+		for(Variable vtx1: sorted_keys){
+			String vname = vtx1.toString();
+			String vnameTranslate = "";
+			if (vname.equals("S"))
+				vnameTranslate = "S";
+			else if (vname.equals("T"))
+				vnameTranslate = "T";
+			else if (vname.substring(vname.length()-2).equals("_H")){
+				vnameTranslate = vname.substring(0, vname.length()-2)+"_PROTONATED";
+			}else{
+				vnameTranslate = vname+"_DEPROTONATED";
+			}
+			toPrintVerts += (vnameTranslate+"\n");
+			for (Variable vtx2 : sorted_keys){
+				if (vtx1.equals(vtx2))
+					continue;
+				
+				String wname = vtx2.toString();
+				String wnameTranslate = "";
+				if (wname.equals("S"))
+					wnameTranslate = "S";
+				else if (wname.equals("T"))
+					wnameTranslate = "T";
+				else if (wname.substring(wname.length()-2).equals("_H")){
+					wnameTranslate = wname.substring(0, wname.length()-2)+"_PROTONATED";
+				}else{
+					wnameTranslate = wname+"_DEPROTONATED";
+				}
+				Set<DefaultWeightedEdge> edges = graph.getAllEdges(vtx1, vtx2);
 				for(DefaultWeightedEdge e: edges){
 					double wt = graph.getEdgeWeight(e);
-					toPrint = toPrint.concat("("+v.toString()+", "+ w.toString() +")= "+ wt+", ");
+					toPrintEdges += ("("+vnameTranslate+", "+ wnameTranslate +")= "+ wt+"\n");
 				}
 			}
 		}
-		toPrint = toPrint.substring(0,toPrint.length()-2);
-		toPrint = toPrint.concat("}");
+
+//		String toPrint = " ";
+//		toPrint = toPrint.concat(vertices.toString()+", {");
+//		for(Variable v: vertices){
+//			for(Variable w: vertices){
+//				Set<DefaultWeightedEdge> edges = graph.getAllEdges(v, w);
+//				for(DefaultWeightedEdge e: edges){
+//					double wt = graph.getEdgeWeight(e);
+//					toPrint = toPrint.concat("("+v.toString()+", "+ w.toString() +")= "+ wt+", ");
+//				}
+//			}
+//		}
+//		toPrint = toPrint.substring(0,toPrint.length()-2);
+//		toPrint = toPrint.concat("}");
 		wr.writeln("Flow network:");
-		wr.writeln(toPrint);
+		wr.writeln(toPrintVerts);
+		wr.writeln(toPrintEdges);
 	}
 
 	/**
