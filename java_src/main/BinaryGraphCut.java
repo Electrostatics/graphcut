@@ -63,24 +63,24 @@ public class BinaryGraphCut {
 				Instance key1 = key.get(0);
 				Instance key2 = key.get(1);
 				if (key1.getLabel().equals("PROT") && key2.getLabel().equals("PROT")){
-					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+sys.getBinary().get(key1, key2));
+					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
 				}else if (key1.getLabel().equals("PROT") && key2.getLabel().equals("DEPROT")){
-					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+sys.getBinary().get(key1, key2));
+					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
 				}else if (key1.getLabel().equals("DEPROT") && key2.getLabel().equals("PROT")){
-					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+sys.getBinary().get(key1, key2));
+					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
 				}else{
-					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+sys.getBinary().get(key1, key2));
+					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinary().get(key1, key2)*10000.0)/10000.0);
 				}
 			}
 			// unary
 			for (Variable var : sys.getVars()){
 				for (Instance inst : var.getInstances()){
 					if (inst.getLabel().equals("PROT")){
-						wr.writeln(inst.getName()+"_PROTONATED "+inst.getEnergy());
+						wr.writeln(inst.getName()+"_PROTONATED "+Math.round(inst.getEnergy()*10000.0)/10000.0);
 					}else if (inst.getLabel().equals("DEPROT")){
-						wr.writeln(inst.getName()+"_DEPROTONATED "+inst.getEnergy());
+						wr.writeln(inst.getName()+"_DEPROTONATED "+Math.round(inst.getEnergy()*10000.0)/10000.0);
 					}else{
-						wr.writeln(inst.toString()+"_OTHER "+inst.getEnergy());
+						wr.writeln(inst.toString()+"_OTHER "+Math.round(inst.getEnergy()*10000.0)/10000.0);
 					}
 				}
 			}
@@ -93,13 +93,13 @@ public class BinaryGraphCut {
 				Instance key1 = key.get(0);
 				Instance key2 = key.get(1);
 				if (key1.getLabel().equals("PROT") && key2.getLabel().equals("PROT")){
-					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+sys.getBinaryNF().get(key1, key2));
+					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
 				}else if (key1.getLabel().equals("PROT") && key2.getLabel().equals("DEPROT")){
-					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+sys.getBinaryNF().get(key1, key2));
+					wr.writeln("("+key1.getName()+"_PROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
 				}else if (key1.getLabel().equals("DEPROT") && key2.getLabel().equals("PROT")){
-					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+sys.getBinaryNF().get(key1, key2));
+					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_PROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
 				}else{
-					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+sys.getBinaryNF().get(key1, key2));
+					wr.writeln("("+key1.getName()+"_DEPROTONATED, "+key2.getName()+"_DEPROTONATED) "+Math.round(sys.getBinaryNF().get(key1, key2)*10000.0)/10000.0);
 				}
 			}
 			// unary
@@ -107,16 +107,16 @@ public class BinaryGraphCut {
 			for (Variable var : sys.getVars()){
 				for (Instance inst : var.getInstances()){
 					if (inst.getLabel().equals("PROT")){
-						wr.writeln(inst.getName()+"_PROTONATED "+inst.getEnergyNF());
+						wr.writeln(inst.getName()+"_PROTONATED "+Math.round(inst.getEnergyNF()*10000.0)/10000.0);
 					}else if (inst.getLabel().equals("DEPROT")){
-						wr.writeln(inst.getName()+"_DEPROTONATED "+inst.getEnergyNF());
+						wr.writeln(inst.getName()+"_DEPROTONATED "+Math.round(inst.getEnergyNF()*10000.0)/10000.0);
 					}else{
-						wr.writeln(inst.toString()+"_OTHER "+inst.getEnergyNF());
+						wr.writeln(inst.toString()+"_OTHER "+Math.round(inst.getEnergyNF()*10000.0)/10000.0);
 					}
 				}
 			}
 			// constant
-			wr.writeln("Normalized constant energy: "+sys.getConstantNF());
+			wr.writeln("Normalized constant energy: "+Math.round(sys.getConstantNF()*10000.0)/10000.0);
 			
 			sysBiGr = new BinaryGraph(sys, false, wr);
 		}
