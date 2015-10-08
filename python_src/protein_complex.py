@@ -137,12 +137,12 @@ class ProteinComplex(object):
             if residue_type != "HIS":
                 #Placeholder instances for later consolidation
                 #HIS is split later so we don't add these as they are not needed.
-                instance = ResidueInstance(False, base_name+"DEPROTONATED")
-                #instance.energy = 0
-                res_var.instances["DEPROTONATED"] = instance
+
                 instance = ResidueInstance(True, base_name+"PROTONATED")
-                #instance.energy = -model_pka
                 res_var.instances["PROTONATED"] = instance
+
+                instance = ResidueInstance(False, base_name+"DEPROTONATED")
+                res_var.instances["DEPROTONATED"] = instance
 
             self.residue_variables[residue_tuple] = res_var
 
@@ -298,7 +298,7 @@ class ProteinComplex(object):
             if name == 'HIS':
                 continue
 
-            residue.instances = dict((k,v) for k,v in residue.instances.iteritems() if "PROTONATED" in k)
+            residue.instances = OrderedDict((k,v) for k,v in residue.instances.iteritems() if "PROTONATED" in k)
 
 
     def divide_his(self):
@@ -329,8 +329,10 @@ class ProteinComplex(object):
             hid_prot = ResidueInstance(True, name, energy=old_instance_1.energy)
             name = "HId"+base_name+"DEPROTONATED"
             hid_deprot = ResidueInstance(False, name)
+
             hid.instances["PROTONATED"] = hid_prot
             hid.instances["DEPROTONATED"] = hid_deprot
+
 
             res_tuple = ("HId",)+key[-2:]
             self.residue_variables[res_tuple] = hid
@@ -342,8 +344,11 @@ class ProteinComplex(object):
             hie_prot = ResidueInstance( True, name, energy=old_instance_2.energy)
             name = "HIe"+base_name+"DEPROTONATED"
             hie_deprot = ResidueInstance(False, name)
+
             hie.instances["PROTONATED"] = hie_prot
             hie.instances["DEPROTONATED"] = hie_deprot
+
+
 
             res_tuple = ("HIe",)+key[-2:]
             self.residue_variables[res_tuple] = hie
