@@ -634,10 +634,10 @@ public class ProtCompl implements Protein {
 			// PROT will replace all of the instances in vtInst and
 			// DEPROT will replace all of the instances in vuInst
 			Instance vProt = new Instance(v.getName(), "PROT", v, MapleTools.min(vtEnergies));
-			v.addInstance(vProt);
 			Instance vDeprot = new Instance(v.getName(), "DEPROT", v, MapleTools.min(vuEnergies));
 			v.addInstance(vDeprot);
-
+			v.addInstance(vProt);
+			
 
 			// now look at second Variables for v to interact with
 			for (int wIndex = vIndex+1; wIndex < residues.size(); wIndex++){
@@ -685,10 +685,10 @@ public class ProtCompl implements Protein {
 				// PROT will replace all of the instances in wtInst and
 				// DEPROT will replace all of the instances in wuInst
 				Instance wProt = new Instance(w.getName(), "PROT", w, MapleTools.min(wtEnergies));
-				w.addInstance(wProt);
 				Instance wDeprot = new Instance(w.getName(), "DEPROT", w, MapleTools.min(wuEnergies));
 				w.addInstance(wDeprot);
-
+				w.addInstance(wProt);
+				
 				// gather up all the energies for T with T
 				double[] ttEnergies = new double[vtInst.size()*wtInst.size()];
 				index = 0;
@@ -977,13 +977,15 @@ public class ProtCompl implements Protein {
 			Variable vd = new Variable("HId_"+v.getName().substring(4)); // to encode the "1" state
 			Instance vdProt = new Instance("HId_"+v.getName().substring(4), "PROT", vd, v.getInstance("1").getEnergy()); //3.3);
 			Instance vdDeprot = new Instance("HId_"+v.getName().substring(4), "DEPROT", vd, 0.0);
-			vd.addInstance(vdProt); vd.addInstance(vdDeprot);
+			vd.addInstance(vdDeprot);
+			vd.addInstance(vdProt); 
 			newHisToOld.put(vd, v);
 
 			Variable ve = new Variable("HIe_"+v.getName().substring(4)); // to encode the "2" state
 			Instance veProt = new Instance("HIe_"+v.getName().substring(4), "PROT", vd, v.getInstance("2").getEnergy()); // 3.3);
 			Instance veDeprot = new Instance("HIe_"+v.getName().substring(4), "DEPROT", vd, 0.0);
-			ve.addInstance(veProt); ve.addInstance(veDeprot);
+			ve.addInstance(veDeprot);
+			ve.addInstance(veProt); 
 			newHisToOld.put(ve, v);
 
 			// add the interaction energies for the vd instances with the ve instances

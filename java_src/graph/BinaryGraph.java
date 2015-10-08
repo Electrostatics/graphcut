@@ -468,17 +468,21 @@ public class BinaryGraph {
 		HashMap<Variable,Instance> varHM = new HashMap<Variable,Instance>();
 		while (it.hasNext()){
 			Variable gr = it.next();
-//			if (minCut.get(gr) == 0 && minCut.get(gr.getHat()) == 1){
+			// if S contains unhat (deprot) and T contains hat (prot) then deprot
 			if (SRC.contains(gr) && SNK.contains(gr.getHat())){
 				S.add(gr);
 				varSeq[ind] = 0;
-				varHM.put(gr, gr.getInstances().get(0));
-//			}else if (minCut.get(gr) == 1 && minCut.get(gr.getHat())==0){
-			}else if (SNK.contains(gr) && SRC.contains(gr.getHat())){
+				varHM.put(gr, gr.getInstances().get(0)); // put deprot into protein
+			
+			}
+			// if S contains hat (prot) and T contains unhat (deprot) then prot
+			else if (SNK.contains(gr) && SRC.contains(gr.getHat())){
 				T.add(gr);
 				varSeq[ind] = 1;
-				varHM.put(gr, gr.getInstances().get(1));
-			}else{
+				varHM.put(gr, gr.getInstances().get(1)); // put prot into protein
+			}
+			// unknown
+			else{
 				U.add(gr);
 				varSeq[ind] = -1;
 				varHM.put(gr, null);
@@ -758,14 +762,14 @@ public class BinaryGraph {
 			Variable vi = vars.get(i); //System.out.println(vi);
 			Variable viHat = vi.getHat();   //System.out.println(viHat);
 			Vector<Instance> viInsts = vi.getInstances();
-			Instance vi0 = viInsts.get(0);
-			Instance vi1 = viInsts.get(1);
+			Instance vi0 = viInsts.get(0); // PROTONATED 
+			Instance vi1 = viInsts.get(1); // DEPROTONATED 
 
 			g.addVertex(vi);
 			g.addVertex(viHat);
 
-			Double E0 = vi0.getEnergyNF();
-			Double E1 = vi1.getEnergyNF();
+			Double E0 = vi0.getEnergyNF(); // PROTOTNATED ENERGY 
+			Double E1 = vi1.getEnergyNF(); // DEPROTOTNATED ENERGY
 
 			g.addEdge(vi,sink);
 			g.setEdgeWeight(g.getEdge(vi, sink),0.5*E0);
@@ -782,20 +786,22 @@ public class BinaryGraph {
 			for(int q=p+1; q<=n-1 && p!=q; q++){
 				Variable vp  = vars.get(p); 
 				Vector<Instance> vpInsts = vp.getInstances();
-				Instance vp0 = vpInsts.get(0); Instance vp1 = vpInsts.get(1); 
+				Instance vp0 = vpInsts.get(0); // PROTONATED
+				Instance vp1 = vpInsts.get(1); // DEPROTONATED
 				Variable vpHat = vp.getHat();
 
 				Variable vq  = vars.get(q); 
 				Vector<Instance> vqInsts = vq.getInstances();
-				Instance vq0 = vqInsts.get(0); Instance vq1 = vqInsts.get(1); 
+				Instance vq0 = vqInsts.get(0); // PROTONATED
+				Instance vq1 = vqInsts.get(1); // DEPROTONATED
 				Variable vqHat = vq.getHat();
 
 				//System.out.println(vp.toString()+" ["+vp0.toString()+", "+vp1.toString()+"] "+vq.toString()+" ["+vq0.toString()+", "+vq1.toString()+"]");
 
-				Double E01 = matrixNF.get(vp0, vq1);
-				Double E10 = matrixNF.get(vp1, vq0);
-				Double E00 = matrixNF.get(vp0, vq0);
-				Double E11 = matrixNF.get(vp1, vq1);
+				Double E01 = matrixNF.get(vp0, vq1); // PROT, DEPROT
+				Double E10 = matrixNF.get(vp1, vq0); // DEPROT, PROT
+				Double E00 = matrixNF.get(vp0, vq0); // PROT, PROT
+				Double E11 = matrixNF.get(vp1, vq1); // DEPROT
 
 				g.addEdge(vp,vq);
 				g.addEdge(vqHat,vpHat);
@@ -1016,9 +1022,9 @@ public class BinaryGraph {
 			else if (vname.equals("T"))
 				vnameTranslate = "T";
 			else if (vname.substring(vname.length()-2).equals("_H")){
-				vnameTranslate = vname.substring(0, vname.length()-2)+"_DEPROTONATED";
+				vnameTranslate = vname.substring(0, vname.length()-2)+"_PROTONATED";
 			}else{
-				vnameTranslate = vname+"_PROTONATED";
+				vnameTranslate = vname+"_DEPROTONATED";
 			}
 			toPrintVerts += (vnameTranslate+"\n");
 			for (Variable vtx2 : sorted_keys){
@@ -1032,9 +1038,9 @@ public class BinaryGraph {
 				else if (wname.equals("T"))
 					wnameTranslate = "T";
 				else if (wname.substring(wname.length()-2).equals("_H")){
-					wnameTranslate = wname.substring(0, wname.length()-2)+"_DEPROTONATED";
+					wnameTranslate = wname.substring(0, wname.length()-2)+"_PROTONATED";
 				}else{
-					wnameTranslate = wname+"_PROTONATED";
+					wnameTranslate = wname+"_DEPROTONATED";
 				}
 				Set<DefaultWeightedEdge> edges = graph.getAllEdges(vtx1, vtx2);
 				for(DefaultWeightedEdge e: edges){
