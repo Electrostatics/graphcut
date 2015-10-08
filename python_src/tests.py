@@ -3,6 +3,11 @@ from __future__ import print_function
 import random
 from pprint import pprint
 
+from itertools import combinations, product, permutations
+import os.path
+
+from titration_curve import print_state
+
 def test_normalize(protein):
     pc = protein.protein_complex
 
@@ -79,7 +84,7 @@ def test_stuff(protein):
 
 def test_adding_ph(protein):
     pc = protein.protein_complex
-    pc.energy_at_pH(0.0)
+    pc.energy_at_pH(10.0)
     keys = pc.interaction_energies_for_ph.keys()
     keys.sort()
     for pair in keys:
@@ -95,22 +100,6 @@ def test_adding_ph(protein):
         print (prot, prot.energy_with_ph)
         print (deprot, deprot.energy_with_ph)
 
-def test_normalization(protein):
-    pc = protein.protein_complex
-    pc.normalize(0.0)
-    keys = pc.normalized_interaction_energies.keys()
-    keys.sort()
-    for pair in keys:
-        print (pair, pc.normalized_interaction_energies[pair])
 
-    keys = pc.residue_variables.keys()
-    keys.sort()
 
-    for key in keys:
-        residue = pc.residue_variables[key]
-        prot = residue.instances["DEPROTONATED"]
-        deprot = residue.instances["PROTONATED"]
-        print (prot, prot.energyNF)
-        print (deprot, deprot.energyNF)
 
-    print ("Normalized constant energy", pc.normalized_constant_energy)
