@@ -17,8 +17,78 @@ modPkaHIP = 6.6
 modPkaHIE = modPkaHIP
 modPkaHID = modPkaHIP
 
+def print_pc_state(pc, normal_form, out_file):
 
-def get_titration_curves(protein_complex):
+    rv = pc.residue_variables
+
+    ie = pc.normalized_interaction_energies if normal_form else pc.interaction_energies_for_ph
+
+    for v_residue in rv.itervalues():
+        for v_instance in v_residue.instances.itervalues():
+            for w_residue in rv.itervalues():
+                if v_residue == w_residue:
+                    continue
+                for w_instance in w_residue.instances.itervalues():
+                    out_file.write(str((v_instance, w_instance)) + " " + str(round(ie[v_instance, w_instance],4)) + '\n')
+
+#     keys = pc.normalized_interaction_energies.keys()
+#     #keys.sort()
+#     for pair in keys:
+#         print (pair, pc.normalized_interaction_energies[pair])
+
+    keys = pc.residue_variables.keys()
+    #keys.sort()
+
+    for key in keys:
+        residue = pc.residue_variables[key]
+        for instance in residue.instances.values():
+            if normal_form:
+                out_file.write(str(instance) + " " + str(round(instance.energyNF,4)) + "\n")
+            else:
+                out_file.write(str(instance) + " " + str(round(instance.energy_with_ph,4)) + "\n")
+
+    if normal_form:
+        out_file.write("Normalized constant energy: " + str(round(pc.normalized_constant_energy,4)) + "\n")
+
+def print_dg_state(dg, out_file):
+    out_file.write("Flow network:\nVertices:\n")
+
+    nodes = dg.node.keys()
+    nodes.sort()
+
+    for node in nodes:
+        out_file.write('_'.join(node)+"\n")
+
+    out_file.write("\nEdges:\n")
+
+    edges = []
+    for edge in dg.edges_iter(data="capacity"):
+        result = []
+        if isinstance(edge[0], tuple):
+            result.append('_'.join(edge[0]))
+        else:
+            result.append(edge[0])
+        if isinstance(edge[1], tuple):
+            result.append('_'.join(edge[1]))
+        else:
+            result.append(edge[1])
+
+        result.append(edge[2])
+
+        edges.append(result)
+
+    edges.sort()
+
+    for edge in edges:
+        out_file.write("(")
+        out_file.write(edge[0])
+        out_file.write(", ")
+        out_file.write(edge[1])
+        out_file.write(")= ")
+        out_file.write(str(round(edge[2],4))+"\n")
+
+
+def get_titration_curves(protein_complex, state_file=None):
     curves = defaultdict(list)
 
     pg = ProteinGraph(protein_complex)
@@ -32,8 +102,29 @@ def get_titration_curves(protein_complex):
         pH = step * 0.1
         print "pH", pH
         #print "Processing pH:", pH
+
+        if state_file is not None:
+            state_file.write ("pH="+ str(pH)+"\n")
+
+            state_file.write("REGULAR ENERGIES\n")
+            protein_complex.energy_at_pH(pH)
+            print_pc_state(protein_complex, False, state_file)
+
+            state_file.write('\n')
+            state_file.write("NORMAL FORM ENERGIES\n")
+
+
         protein_complex.normalize(pH)
+
+        if state_file is not None:
+            print_pc_state(protein_complex, True, state_file)
+            state_file.write('\n')
+
         pg.update_graph()
+
+        if state_file is not None:
+            print_dg_state(pg.DG, state_file)
+            state_file.write('\n')
 
         cv, s_nodes, t_nodes = pg.get_cut()
         labeling, uncertain = pg.get_labeling_from_cut(s_nodes, t_nodes)

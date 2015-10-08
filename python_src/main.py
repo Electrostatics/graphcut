@@ -64,6 +64,7 @@ USAGE
         parser.add_argument(dest="input", help="path to input folder", metavar="input_path")
         parser.add_argument(dest="output", help="paths to output folder", metavar="output_path")
         parser.add_argument("--test", action='store_true', default=False, help="Run basic sanity tests using selected input.")
+        parser.add_argument("--dump-state", action='store_true', default=False, help="Dump state to state.txt in output.")
 
         # Process arguments
         args = parser.parse_args()
@@ -71,6 +72,7 @@ USAGE
         input_path = args.input
         output_path = args.output
         verbose = args.verbose
+        dump_state = args.dump_state
 
         if verbose > 0:
             print("Verbose mode on")
@@ -92,9 +94,16 @@ USAGE
              open(desolvation_filepath) as desolvation_file:
             protein = Protein(interaction_file, desolvation_file, background_file)
 
-#         curves = get_titration_curves(protein.protein_complex)
-#
-#         create_output(output_path, curves)
+        state_file = None
+        if dump_state:
+            state_file = open(os.path.join(output_path, "state.txt"), 'w')
+
+        curves = get_titration_curves(protein.protein_complex, state_file)
+
+        if dump_state:
+            state_file.close()
+
+        create_output(output_path, curves)
 
         #pprint(dict(curves))
 
@@ -102,7 +111,7 @@ USAGE
             import tests
             #tests.test_normalize(protein)
             #tests.test_stuff(protein)
-            tests.test_other_stuff(protein)
+            #tests.test_adding_ph(protein)
 
         return 0
     except KeyboardInterrupt, e:
