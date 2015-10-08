@@ -1032,14 +1032,14 @@ public class BinaryGraph {
 				else if (wname.equals("T"))
 					wnameTranslate = "T";
 				else if (wname.substring(wname.length()-2).equals("_H")){
-					wnameTranslate = wname.substring(0, wname.length()-2)+"_PROTONATED";
+					wnameTranslate = wname.substring(0, wname.length()-2)+"_DEPROTONATED";
 				}else{
-					wnameTranslate = wname+"_DEPROTONATED";
+					wnameTranslate = wname+"_PROTONATED";
 				}
 				Set<DefaultWeightedEdge> edges = graph.getAllEdges(vtx1, vtx2);
 				for(DefaultWeightedEdge e: edges){
 					double wt = graph.getEdgeWeight(e);
-					toPrintEdges += ("("+vnameTranslate+", "+ wnameTranslate +")= "+ Math.round(wt*10000)/10000+"\n");
+					toPrintEdges += ("("+vnameTranslate+", "+ wnameTranslate +")= "+ Math.round(wt*10000.0)/10000.0+"\n");
 				}
 			}
 		}
