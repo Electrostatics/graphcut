@@ -41,12 +41,15 @@ class Protein(object):
         pc.add_residue(group1_type, group1_chain, group1_loc)
         pc.add_residue(group2_type, group2_chain, group2_loc)
 
+        #We skip all interactions with self. They should always be 0.
         if (group1_type, group1_chain, group1_loc) != (group2_type, group2_chain, group2_loc):
             instance1 = pc.get_instance(group1_type, group1_chain, group1_loc, group1_state)
             instance2 = pc.get_instance(group2_type, group2_chain, group2_loc, group2_state)
 
             pc.interaction_energies[instance1, instance2] = inter_avg
 
+            #All interaction files SHOULD be symmetric. PDB2PKA makes them that way.
+            #This just makes sure that is true, especially if we tweak stuff by hand.
             flipped_inter_avg = pc.interaction_energies.get((instance2, instance1))
             if flipped_inter_avg is not None:
                 diff = abs(inter_avg - flipped_inter_avg)
@@ -54,6 +57,15 @@ class Protein(object):
                     print group1_type, group1_chain, group1_loc, group1_state
                     print group2_type, group2_chain, group2_loc, group2_state
                     print "Difference:", diff
+
+            else:
+                #This makes it easier to make test files and does not prevent
+                # the sanity checking above.
+                pc.interaction_energies[instance2, instance1] = inter_avg
+
+        elif inter_avg != 0:
+            print "Non-zero interaction energy with self:", inter_avg
+            print group1_type, group1_chain, group1_loc, group1_state, group2_state
 
 
     def ingest_desolv_or_background_file(self, file_obj):
