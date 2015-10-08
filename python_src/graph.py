@@ -51,20 +51,28 @@ class ProteinGraph(object):
             w_deprot_node = w_key+("DEPROTONATED",)
 
             capacity = self.pc.normalized_interaction_energies[v_deprot_instance, w_deprot_instance] / 2.0
-            self.DG.add_edge(v_prot_node, w_deprot_node, capacity=capacity)
-            self.DG.add_edge(w_prot_node, v_deprot_node, capacity=capacity)
+
+            if capacity != 0.0:
+                self.DG.add_edge(v_prot_node, w_deprot_node, capacity=capacity)
+                self.DG.add_edge(w_prot_node, v_deprot_node, capacity=capacity)
 
             capacity = self.pc.normalized_interaction_energies[v_prot_instance, w_deprot_instance] / 2.0
-            self.DG.add_edge(v_prot_node, w_prot_node, capacity=capacity)
-            self.DG.add_edge(w_deprot_node, v_deprot_node, capacity=capacity)
+
+            if capacity != 0.0:
+                self.DG.add_edge(v_prot_node, w_prot_node, capacity=capacity)
+                self.DG.add_edge(w_deprot_node, v_deprot_node, capacity=capacity)
 
             capacity = self.pc.normalized_interaction_energies[v_deprot_instance, w_prot_instance] / 2.0
-            self.DG.add_edge(v_deprot_node, w_deprot_node, capacity=capacity)
-            self.DG.add_edge(w_prot_node, v_prot_node, capacity=capacity)
+
+            if capacity != 0.0:
+                self.DG.add_edge(v_deprot_node, w_deprot_node, capacity=capacity)
+                self.DG.add_edge(w_prot_node, v_prot_node, capacity=capacity)
 
             capacity = self.pc.normalized_interaction_energies[v_prot_instance, w_prot_instance] / 2.0
-            self.DG.add_edge(v_deprot_node, w_prot_node, capacity=capacity)
-            self.DG.add_edge(w_deprot_node, v_prot_node, capacity=capacity)
+
+            if capacity != 0.0:
+                self.DG.add_edge(v_deprot_node, w_prot_node, capacity=capacity)
+                self.DG.add_edge(w_deprot_node, v_prot_node, capacity=capacity)
 
     def get_cut(self):
         cut_value, partition = nx.minimum_cut(self.DG, "S", "T")
