@@ -1016,9 +1016,9 @@ public class BinaryGraph {
 			else if (vname.equals("T"))
 				vnameTranslate = "T";
 			else if (vname.substring(vname.length()-2).equals("_H")){
-				vnameTranslate = vname.substring(0, vname.length()-2)+"_PROTONATED";
+				vnameTranslate = vname.substring(0, vname.length()-2)+"_DEPROTONATED";
 			}else{
-				vnameTranslate = vname+"_DEPROTONATED";
+				vnameTranslate = vname+"_PROTONATED";
 			}
 			toPrintVerts += (vnameTranslate+"\n");
 			for (Variable vtx2 : sorted_keys){
