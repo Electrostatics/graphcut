@@ -762,14 +762,14 @@ public class BinaryGraph {
 			Variable vi = vars.get(i); //System.out.println(vi);
 			Variable viHat = vi.getHat();   //System.out.println(viHat);
 			Vector<Instance> viInsts = vi.getInstances();
-			Instance vi0 = viInsts.get(0); // PROTONATED 
-			Instance vi1 = viInsts.get(1); // DEPROTONATED 
+			Instance vi0 = viInsts.get(0); // DEPROTONATED 
+			Instance vi1 = viInsts.get(1); // PROTONATED 
 
 			g.addVertex(vi);
 			g.addVertex(viHat);
 
-			Double E0 = vi0.getEnergyNF(); // PROTOTNATED ENERGY 
-			Double E1 = vi1.getEnergyNF(); // DEPROTOTNATED ENERGY
+			Double E0 = vi0.getEnergyNF(); // DEPROTOTNATED ENERGY 
+			Double E1 = vi1.getEnergyNF(); // PROTOTNATED ENERGY
 
 			g.addEdge(vi,sink);
 			g.setEdgeWeight(g.getEdge(vi, sink),0.5*E0);
@@ -786,22 +786,22 @@ public class BinaryGraph {
 			for(int q=p+1; q<=n-1 && p!=q; q++){
 				Variable vp  = vars.get(p); 
 				Vector<Instance> vpInsts = vp.getInstances();
-				Instance vp0 = vpInsts.get(0); // PROTONATED
-				Instance vp1 = vpInsts.get(1); // DEPROTONATED
+				Instance vp0 = vpInsts.get(0); // DEPROTONATED
+				Instance vp1 = vpInsts.get(1); // PROTONATED
 				Variable vpHat = vp.getHat();
 
 				Variable vq  = vars.get(q); 
 				Vector<Instance> vqInsts = vq.getInstances();
-				Instance vq0 = vqInsts.get(0); // PROTONATED
-				Instance vq1 = vqInsts.get(1); // DEPROTONATED
+				Instance vq0 = vqInsts.get(0); // DEPROTONATED
+				Instance vq1 = vqInsts.get(1); // PROTONATED
 				Variable vqHat = vq.getHat();
 
 				//System.out.println(vp.toString()+" ["+vp0.toString()+", "+vp1.toString()+"] "+vq.toString()+" ["+vq0.toString()+", "+vq1.toString()+"]");
 
-				Double E01 = matrixNF.get(vp0, vq1); // PROT, DEPROT
-				Double E10 = matrixNF.get(vp1, vq0); // DEPROT, PROT
-				Double E00 = matrixNF.get(vp0, vq0); // PROT, PROT
-				Double E11 = matrixNF.get(vp1, vq1); // DEPROT
+				Double E01 = matrixNF.get(vp0, vq1); // DEPROT, PROT
+				Double E10 = matrixNF.get(vp1, vq0); // PROT, DEPROT
+				Double E00 = matrixNF.get(vp0, vq0); // DEPROT, DEPROT
+				Double E11 = matrixNF.get(vp1, vq1); // PROT, PROT
 
 				g.addEdge(vp,vq);
 				g.addEdge(vqHat,vpHat);
