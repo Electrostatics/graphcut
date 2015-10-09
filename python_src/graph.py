@@ -80,12 +80,15 @@ class ProteinGraph(object):
                 self.DG.add_edge(q_prot_node, p_deprot_node, capacity=capacity)
 
     def get_cut(self):
+        """Performs the min cut.
+           Returns cut_value, s nodes, t nodes"""
         cut_value, partition = nx.minimum_cut(self.DG, "S", "T")
         s_nodes, t_nodes = partition
 
         return cut_value, set(s_nodes), set(t_nodes)
 
     def get_labeling_from_cut(self, s_nodes, t_nodes):
+        """Creates a map of residues to instances based on the """
         labeling = {}
         uncertain = []
         for key, v in self.pc.residue_variables.iteritems():
