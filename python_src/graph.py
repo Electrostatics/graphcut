@@ -6,17 +6,21 @@ class ProteinGraph(object):
         self.pc = protein_complex
 
     def _build_nodes(self):
+        #Ditch existing graph and start over.
         self.DG = nx.DiGraph()
         self.DG.add_node("S")
         self.DG.add_node("T")
 
+        #Create all state nodes.
         for key in self.pc.residue_variables:
             self.DG.add_node(key+("PROTONATED",))
             self.DG.add_node(key+("DEPROTONATED",))
 
     def update_graph(self):
+        """Build a new graph based on the state of self.pc"""
         self._build_nodes()
 
+        #Create edges going in and out of S and T.
         for key, v in self.pc.residue_variables.iteritems():
             prot_instance = v.instances["PROTONATED"]
             prot_capacity = prot_instance.energyNF / 2.0
@@ -34,6 +38,7 @@ class ProteinGraph(object):
                 self.DG.add_edge("S", prot_node, capacity=deprot_capacity)
                 self.DG.add_edge(deprot_node, "T", capacity=deprot_capacity)
 
+        #Create all interaction energy edges.
         for p, q in combinations(self.pc.residue_variables.iteritems(),2):
             p_key, p_residue = p
             q_key, q_residue = q
