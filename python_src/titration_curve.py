@@ -194,8 +194,13 @@ def get_curve_values(protein_complex, labeling, pH):
             energy_diff = protein_complex.evaluate_energy_diff(residue, labeling, normal_form=True)
 
             exp = -(energy_diff*kln10_T)/RT
-            e_exp = math.exp(exp)
-            titration_value = e_exp/(1.0+e_exp)
+            titration_value = 1.0
+            #Handle case where there is an unresolved bump.
+            try:
+                e_exp = math.exp(exp)
+                titration_value = e_exp/(1.0+e_exp)
+            except OverflowError:
+                pass
             results[key] = titration_value
 
     return results
