@@ -18,7 +18,8 @@ modPkaHIE = modPkaHIP
 modPkaHID = modPkaHIP
 
 def print_pc_state(pc, normal_form, out_file):
-
+    """Dump protein_complex state to out_file
+       normal_form - Dump the normal form part of the state."""
     rv = pc.residue_variables
 
     ie = pc.normalized_interaction_energies if normal_form else pc.interaction_energies_for_ph
@@ -31,13 +32,7 @@ def print_pc_state(pc, normal_form, out_file):
                 for w_instance in w_residue.instances.itervalues():
                     out_file.write(str((v_instance, w_instance)) + " " + str(round(ie[v_instance, w_instance],4)) + '\n')
 
-#     keys = pc.normalized_interaction_energies.keys()
-#     #keys.sort()
-#     for pair in keys:
-#         print (pair, pc.normalized_interaction_energies[pair])
-
     keys = pc.residue_variables.keys()
-    #keys.sort()
 
     for key in keys:
         residue = pc.residue_variables[key]
@@ -51,6 +46,7 @@ def print_pc_state(pc, normal_form, out_file):
         out_file.write("Normalized constant energy: " + str(round(pc.normalized_constant_energy,4)) + "\n")
 
 def print_dg_state(dg, out_file):
+    """Dump directed graph state to out_file"""
     out_file.write("Flow network:\nVertices:\n")
 
     nodes = dg.node.keys()
@@ -89,6 +85,15 @@ def print_dg_state(dg, out_file):
 
 
 def get_titration_curves(protein_complex, state_file=None):
+    """For each ph value:
+           Get the normal form of the protein energies.
+           Build a flow graph
+           Get the min cut of the graph
+           Find which state for each residue from the cut (labeling) and the unknown states (uncertain)
+           Use brute force or MC to resolve the uncertain states.
+           Calculate the curve value for each residue
+
+        Returns results for all residues for each ph."""
     curves = defaultdict(list)
 
     pg = ProteinGraph(protein_complex)
@@ -129,13 +134,7 @@ def get_titration_curves(protein_complex, state_file=None):
         cv, s_nodes, t_nodes = pg.get_cut()
         labeling, uncertain = pg.get_labeling_from_cut(s_nodes, t_nodes)
 
-        print "Uncertain"
-        pprint(uncertain)
         new_labeling = resolve_uncertainty(protein_complex, labeling, uncertain, verbose=True)
-
-
-        pprint(new_labeling)
-        print "Min energy", protein_complex.evaluate_energy(new_labeling, True)
 
         curve_values = get_curve_values(protein_complex, new_labeling, pH)
         for key, value in curve_values.iteritems():
@@ -144,6 +143,8 @@ def get_titration_curves(protein_complex, state_file=None):
     return curves
 
 def get_curve_values(protein_complex, labeling, pH):
+    """Using the given selected residue states (labeling) and pH get the
+       current curve value for all titratable residues."""
     his_seen = set()
     results = {}
 
