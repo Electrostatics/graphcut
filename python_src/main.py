@@ -16,6 +16,7 @@ from pprint import pprint
 # from uncertainy import resolve_uncertainty
 from titration_curve import get_titration_curves
 from create_titration_output import create_output
+from datetime import datetime
 
 __all__ = []
 __version__ = 0.1
@@ -98,7 +99,16 @@ USAGE
         if dump_state:
             state_file = open(os.path.join(output_path, "state.txt"), 'w')
 
+        start = datetime.now()
         curves = get_titration_curves(protein.protein_complex, state_file)
+        end = datetime.now()
+
+        delta = end - start
+        delta_seconds = delta.total_seconds()
+
+        with open(os.path.join(output_path, "timing.txt"), 'a') as timing_file:
+            timing_file.write(str(delta_seconds)+'\n')
+
 
         if dump_state:
             state_file.close()
