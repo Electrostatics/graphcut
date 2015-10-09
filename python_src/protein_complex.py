@@ -3,7 +3,6 @@ from itertools import combinations, product, permutations
 
 from collections import OrderedDict
 
-from pprint import pprint
 import sys
 
 titratable_residue_data = {
@@ -612,8 +611,6 @@ class ProteinComplex(object):
         rv = self.residue_variables
         keys = rv.keys()
 
-        #keys.sort()
-
         for v_key, w_key in combinations(keys, 2):
             v_residue = rv[v_key]
             w_residue = rv[w_key]
@@ -648,16 +645,6 @@ class ProteinComplex(object):
             if min_energy != sys.float_info.max:
                 for instance in residue.instances.itervalues():
                     instance.energyNF -= min_energy
-
-
-#         pprint(self.normalized_interaction_energies)
-#         print "Normalized constant energy", self.normalized_constant_energy
-#
-#         for residue in self.residue_variables.itervalues():
-#             prot = residue.instances["DEPROTONATED"]
-#             deprot = residue.instances["PROTONATED"]
-#             print prot, prot.energyNF
-#             print deprot, deprot.energyNF
 
 
     def energy_at_pH(self, pH):
