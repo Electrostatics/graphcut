@@ -3,11 +3,14 @@ from uncertainty import resolve_uncertainty
 from collections import defaultdict
 import math
 from pprint import pprint
+import sys
 
 gas_constant = 8.3144621
 #ln(10) * gas constant
 kln10 = math.log(10) * gas_constant
 # Degrees Kelvin
+T=300.0
+kln10_T = kln10  *T
 RT = 2479.0;
 RT_gas = RT * gas_constant
 
@@ -168,8 +171,8 @@ def get_curve_values(protein_complex, labeling, pH):
             dge, dgd = protein_complex.evaluate_energy_diff_his(hie_residue, hid_residue, labeling,
                                                                  normal_form=True)
 
-            dge *= kln10
-            dgd *= kln10
+            dge *= kln10_T
+            dgd *= kln10_T
 
             dpkad = -math.log10(math.exp(dgd/RT_gas))
             dpkae = -math.log10(math.exp(dge/RT_gas))
@@ -180,8 +183,20 @@ def get_curve_values(protein_complex, labeling, pH):
             Gd = -math.log(math.pow(10, pkad))
             Ge = -math.log(math.pow(10, pkae))
 
-            ThetaPEnerNumer = math.exp(-Gd)*aH
-            ThetaPEnerDenom = 1.0+math.exp(-(Gd-Ge))+math.exp(-Gd)*aH
+            ThetaPEnerNumer = sys.float_info.min
+            ThetaPEnerDenom = sys.float_info.min
+
+            Gdeavg = (Gd+Ge)/2.0
+
+            if not labeling[hie_residue].protonated and labeling[hid_residue].protonated:
+                ThetaPEnerNumer = math.exp(-Ge)*aH
+                ThetaPEnerDenom = 1.0+math.exp(-(Gd-Ge))+math.exp(-Ge)*aH
+            elif labeling[hie_residue].protonated and not labeling[hid_residue].protonated:
+                ThetaPEnerNumer = math.exp(-Gd)*aH
+                ThetaPEnerDenom = 1.0+math.exp(-(Gd-Ge))+math.exp(-Gd)*aH
+            elif labeling[hie_residue].protonated and labeling[hid_residue].protonated:
+                ThetaPEnerNumer = math.exp(-Gdeavg)*aH
+                ThetaPEnerDenom = 1.0+math.exp(-(Gd-Ge))+math.exp(-Gdeavg)*aH
 
             titration_value = ThetaPEnerNumer/ThetaPEnerDenom
             results["HIS", chain, location] = titration_value
@@ -191,7 +206,7 @@ def get_curve_values(protein_complex, labeling, pH):
             #energy_diff = protonated_energy - depotonated_energy
             energy_diff = protein_complex.evaluate_energy_diff(residue, labeling, normal_form=True)
 
-            exp = -(energy_diff*kln10)/RT
+            exp = -(energy_diff*kln10_T)/RT
             titration_value = 1.0
             #Handle case where there is an unresolved bump.
             try:
