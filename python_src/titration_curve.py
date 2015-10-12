@@ -8,10 +8,8 @@ gas_constant = 8.3144621
 #ln(10) * gas constant
 kln10 = math.log(10) * gas_constant
 # Degrees Kelvin
-T = 300
 RT = 2479.0;
-RT_gas_T = RT * gas_constant * T
-kln10_T = kln10 * T
+RT_gas = RT * gas_constant
 
 modPkaHIP = 6.6
 modPkaHIE = modPkaHIP
@@ -170,11 +168,11 @@ def get_curve_values(protein_complex, labeling, pH):
             dge, dgd = protein_complex.evaluate_energy_diff_his(hie_residue, hid_residue, labeling,
                                                                  normal_form=True)
 
-            dge *= kln10_T
-            dgd *= kln10_T
+            dge *= kln10
+            dgd *= kln10
 
-            dpkad = -math.log10(math.exp(dgd/RT_gas_T))
-            dpkae = -math.log10(math.exp(dge/RT_gas_T))
+            dpkad = -math.log10(math.exp(dgd/RT_gas))
+            dpkae = -math.log10(math.exp(dge/RT_gas))
 
             pkad = modPkaHIP + dpkad
             pkae = modPkaHIP + dpkae
@@ -193,7 +191,7 @@ def get_curve_values(protein_complex, labeling, pH):
             #energy_diff = protonated_energy - depotonated_energy
             energy_diff = protein_complex.evaluate_energy_diff(residue, labeling, normal_form=True)
 
-            exp = -(energy_diff*kln10_T)/RT
+            exp = -(energy_diff*kln10)/RT
             titration_value = 1.0
             #Handle case where there is an unresolved bump.
             try:
