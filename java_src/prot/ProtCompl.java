@@ -249,13 +249,30 @@ public class ProtCompl implements Protein {
 		tRes = new Vector<String>();
 		utRes = new Vector<String>();
 
+//		tRes.add("ASP_1"); tRes.add("ASP_2"); tRes.add("ASP_3"); tRes.add("ASP_4");
+//		tRes.add("GLU_1"); tRes.add("GLU_2"); tRes.add("GLU_3"); tRes.add("GLU_4");
+//		tRes.add("ARG_1+2+3+4+5");
+//		tRes.add("LYS_1");
+//		tRes.add("TYR_1");
+//		tRes.add("HIS_1"); tRes.add("HIS_2"); utRes.add("HIS_1+2");
+//		tRes.add("NTR_1"); tRes.add("NTR_2");
+//		tRes.add("CTR_1"); tRes.add("CTR_2"); tRes.add("CTR_3"); tRes.add("CTR_4");
+//
+//		utRes.add("ASP_0");
+//		utRes.add("GLU_0");
+//		utRes.add("ARG_1+2+3+4");
+//		utRes.add("LYS_0");
+//		utRes.add("TYR_0");
+//		utRes.add("NTR_1+2");
+//		utRes.add("CTR_0");
+		
 		tRes.add("ASP_1"); tRes.add("ASP_2"); tRes.add("ASP_3"); tRes.add("ASP_4");
 		tRes.add("GLU_1"); tRes.add("GLU_2"); tRes.add("GLU_3"); tRes.add("GLU_4");
 		tRes.add("ARG_1+2+3+4+5");
 		tRes.add("LYS_1");
 		tRes.add("TYR_1");
 		tRes.add("HIS_1"); tRes.add("HIS_2"); utRes.add("HIS_1+2");
-		tRes.add("NTR_1"); tRes.add("NTR_2");
+		utRes.add("NTR_1"); utRes.add("NTR_2");
 		tRes.add("CTR_1"); tRes.add("CTR_2"); tRes.add("CTR_3"); tRes.add("CTR_4");
 
 		utRes.add("ASP_0");
@@ -263,10 +280,11 @@ public class ProtCompl implements Protein {
 		utRes.add("ARG_1+2+3+4");
 		utRes.add("LYS_0");
 		utRes.add("TYR_0");
-		utRes.add("NTR_1+2");
+		tRes.add("NTR_1+2");
 		utRes.add("CTR_0");
 
 	}
+	
 
 	/* * * * * * * * * * * * *
 	 *  GETTERS AND SETTERS  *
