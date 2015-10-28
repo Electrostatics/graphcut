@@ -600,10 +600,47 @@ class ProteinComplex(object):
 
     def evaluate_energy_diff_his(self, hie_residue, hid_residue, labeling, normal_form = False):
         """Returns the total energy differences between
-             1. HSE total energy and HSP total energy (HSE total energy - HSP total energy)
-             2. HSD total energy and HSP total energy (HSD total energy - HSP total energy)
+             1. HSE total energy and HSP total energy (HSP total energy - HSE total energy)
+             2. HSD total energy and HSP total energy (HSP total energy - HSD total energy)
             in a tuple."""
 
+        # With both HIE and HID in protonated states:
+        # HSP energy adds:
+        #    unary energy of all not-this-HIS residues in current state
+        #    unary energy of HSE_protonated
+        #    unary energy of HSD_protonated
+        #    binary energy of all not-this-HIS residues in current state
+        #    binary energy of all not-this-HIS (current state) with HSE_protonated
+        #    binary energy of all not-this-HIS (current state) with HSD_protonated
+        #
+        # HSE energy adds:
+        #    unary energy of all not-this-HIS residues in current state
+        #    unary energy of HSE_protonated
+        #    unary energy of HSD_deprotonated
+        #    binary energy of all not-this-HIS residues in current state
+        #    binary energy of all not-this-HIS (current state) with HSE_protonated
+        #    binary energy of all not-this-HIS (current state) with HSD_deprotonated
+        #
+        # HSD energy adds:
+        #    unary energy of all not-this-HIS residues in current state
+        #    unary energy of HSE_deprotonated
+        #    unary energy of HSD_protonated
+        #    binary energy of all not-this-HIS residues in current state
+        #    binary energy of all not-this-HIS (current state) with HSE_deprotonated
+        #    binary energy of all not-this-HIS (current state) with HSD_protonated
+        #
+        # HSP-HSE has
+        #    unary energy of HSD_protonated (EHd1) minus 
+        #        unary energy of HSD_deprotonated (EHd0)
+        #    binary energy of all not-this-HIS (current state) with HSD_protonated (sum_ErHd_a1) minus
+        #        binary energy of all not-this-HIS (current state) with HSD_deprotonated (sum_ErHd_a0)
+        #
+        # HSP-HSD has
+        #    unary energy of HSE_protonated (EHe1) minus
+        #        unary energy of HSE_deprotonated (EHe0)
+        #    binary energy of all not-this-HIS (current state) with HSE_protonated (sum_ErHe_a1) minus
+        #        binary energy of all not-this-HIS (current state) with HSE_deprotonated (sum_ErHe_a0)
+        
         labeling_copy = labeling.copy()
         ie = self.normalized_interaction_energies if normal_form else self.interaction_energies
 
@@ -612,22 +649,33 @@ class ProteinComplex(object):
         hid_prot_instance = hid_residue.instances["PROTONATED"]
         hid_deprot_instance = hid_residue.instances["DEPROTONATED"]
 
-
-        labeling_copy[hid_residue] = hid_deprot_instance
-        e_energy = sum(ie.get((hie_prot_instance, labeling_copy[x]),0) for x in self.residue_variables.itervalues())
         labeling_copy[hid_residue] = hid_prot_instance
-        p_energy = sum(ie.get((hie_prot_instance, labeling_copy[x]),0) for x in self.residue_variables.itervalues())
-
-        hsp_hse_diff = p_energy - e_energy
-
-        labeling_copy[hie_residue] = hie_deprot_instance
-        d_energy = sum(ie.get((hid_prot_instance, labeling_copy[x]),0) for x in self.residue_variables.itervalues())
         labeling_copy[hie_residue] = hie_prot_instance
-        p_energy = sum(ie.get((hid_prot_instance, labeling_copy[x]),0) for x in self.residue_variables.itervalues())
+        
+        if normal_form:
+            EHd1 = hid_prot_instance.energyNF
+            EHd0 = hid_deprot_instance.energyNF
+        else:
+            EHd1 = hid_prot_instance.energy
+            EHd0 = hid_deprot_instance.energy
+            
+        sum_ErHd_a1 = sum(ie.get((labeling_copy[x], hid_prot_instance), 0) for x in self.residue_variables.itervalues())
+        sum_ErHd_a0 = sum(ie.get((labeling_copy[x], hid_deprot_instance), 0) for x in self.residue_variables.itervalues())
+        
+        if normal_form:
+            EHe1 = hie_prot_instance.energyNF
+            EHe0 = hie_deprot_instance.energyNF
+        else:
+            EHe1 = hie_prot_instance.energy
+            EHe0 = hie_deprot_instance.energy
+            
+        sum_ErHe_a1 = sum(ie.get((labeling_copy[x], hie_prot_instance), 0) for x in self.residue_variables.itervalues())
+        sum_ErHe_a0 = sum(ie.get((labeling_copy[x], hie_deprot_instance), 0) for x in self.residue_variables.itervalues())
+        
+        hsp_hse = EHd1 - EHd0 + sum_ErHd_a1 - sum_ErHd_a0
+        hsp_hsd = EHe1 - EHe0 + sum_ErHe_a1 - sum_ErHe_a0
 
-        hsp_hsd_diff = p_energy - d_energy
-
-        return hsp_hse_diff, hsp_hsd_diff
+        return hsp_hse, hsp_hsd
 
     def normalize(self, pH):
         """Finds and stores the normal form of all instance and interaction energies at the supplied pH value.
