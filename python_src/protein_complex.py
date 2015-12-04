@@ -11,7 +11,7 @@ titratable_residue_data = {
                            "GLU": {"model_pka": 4.1, "ionizable":-1, "tautomers":{"protonated":("1", "2", "3", "4"), "deprotonated":("0",)}},
                            "LYS": {"model_pka":10.4, "ionizable": 1, "tautomers":{"protonated":("1",), "deprotonated":("0",)}},
                            "TYR": {"model_pka": 9.6, "ionizable": 1, "tautomers":{"protonated":("1",), "deprotonated":("0",)}},
-                           "CTR": {"model_pka": 3.2, "ionizable":-1, "tautomers":{"deprotonated":("1", "2", "3", "4"), "protonated":("0",)}},
+                           "CTR": {"model_pka": 3.2, "ionizable":-1, "tautomers":{"protonated":("1", "2", "3", "4"), "deprotonated":("0",)}},
                            "NTR": {"model_pka": 8.3, "ionizable": 1, "tautomers":{"deprotonated":("1", "2"), "protonated":("1+2",)}},
                            "HIS": {"model_pka": 6.6, "ionizable": 1, "tautomers":{"protonated":("1", "2"), "deprotonated":("1+2",)}},
                           }
