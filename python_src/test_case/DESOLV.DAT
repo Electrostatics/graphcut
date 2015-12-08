@@ -1,0 +1,13 @@
+pdb2pka Desolvation Energy File
+Format 1.0
+TERMINAL GROUP:
+  53 MET  (  53  ) A      -0.2072
+  55 ARG  (  55  ) A      -0.0295
+  65 LYS  (  65  ) A      -0.5614
+  70 LYS  (  70  ) A      -0.6190
+  71 LYS  (  71  ) A      -0.7750
+  72 GLU  (  72  ) A       0.9434
+  73 LYS  (  73  ) A      -0.3090
+TERMINAL GROUP:
+  76 PHE  (  76  ) A      -0.0828
+End of file

@@ -25,19 +25,19 @@ def print_pc_state(pc, normal_form, out_file):
 
     ie = pc.normalized_interaction_energies if normal_form else pc.interaction_energies_for_ph
 
-    for v_residue in rv.itervalues():
-        for v_instance in v_residue.instances.itervalues():
-            for w_residue in rv.itervalues():
+    for v_residue in rv.values():
+        for v_instance in v_residue.instances.values():
+            for w_residue in rv.values():
                 if v_residue == w_residue:
                     continue
-                for w_instance in w_residue.instances.itervalues():
+                for w_instance in w_residue.instances.values():
                     out_file.write(str((v_instance, w_instance)) + " " + str(round(ie[v_instance, w_instance],4)) + '\n')
 
-    keys = pc.residue_variables.keys()
+    keys = list(pc.residue_variables.keys())
 
     for key in keys:
         residue = pc.residue_variables[key]
-        for instance in residue.instances.values():
+        for instance in list(residue.instances.values()):
             if normal_form:
                 out_file.write(str(instance) + " " + str(round(instance.energyNF,4)) + "\n")
             else:
@@ -50,7 +50,7 @@ def print_dg_state(dg, out_file):
     """Dump directed graph state to out_file"""
     out_file.write("Flow network:\nVertices:\n")
 
-    nodes = dg.node.keys()
+    nodes = list(dg.node.keys())
     nodes.sort()
 
     for node in nodes:
@@ -104,9 +104,9 @@ def get_titration_curves(protein_complex, state_file=None):
     end_ph = 20.0
     steps = int(end_ph / step_size) + 1
 
-    for step in xrange(steps):
+    for step in range(steps):
         pH = step * 0.1
-        print "pH", pH
+        print("pH", pH)
         #print "Processing pH:", pH
 
         if state_file is not None:
@@ -138,7 +138,7 @@ def get_titration_curves(protein_complex, state_file=None):
         new_labeling = resolve_uncertainty(protein_complex, labeling, uncertain, verbose=True)
 
         curve_values = get_curve_values(protein_complex, new_labeling, pH)
-        for key, value in curve_values.iteritems():
+        for key, value in curve_values.items():
             curves[key].append((pH, value))
 
     return curves
@@ -151,7 +151,7 @@ def get_curve_values(protein_complex, labeling, pH):
 
     aH = math.pow(10, -pH)
 
-    for key, residue in protein_complex.residue_variables.iteritems():
+    for key, residue in protein_complex.residue_variables.items():
         name, chain, location = key
 
         if name in ("HId", "HIe"):

@@ -1,5 +1,5 @@
 
-from __future__ import print_function
+
 import random
 from pprint import pprint
 
@@ -12,7 +12,7 @@ def test_normalize(protein):
     pc = protein.protein_complex
 
 
-    for _ in xrange(100):
+    for _ in range(100):
         seen = {}
         labeling = {}
 
@@ -20,7 +20,7 @@ def test_normalize(protein):
         #pH = 10.0
         pc.normalize(pH)
 
-        for key, variable in pc.residue_variables.iteritems():
+        for key, variable in pc.residue_variables.items():
             _, chain, location = key
             location = (chain, location)
             other = seen.get(location)
@@ -59,7 +59,7 @@ def test_stuff(protein):
                        ("ASP","A","47"),
                        ("HId","A","12")])
 
-    for key, variable in pc.residue_variables.iteritems():
+    for key, variable in pc.residue_variables.items():
         residue, chain, location = key
         if key in deprotonated:
             instance_name = "DEPROTONATED"
@@ -85,12 +85,12 @@ def test_stuff(protein):
 def test_adding_ph(protein):
     pc = protein.protein_complex
     pc.energy_at_pH(10.0)
-    keys = pc.interaction_energies_for_ph.keys()
+    keys = list(pc.interaction_energies_for_ph.keys())
     keys.sort()
     for pair in keys:
         print (pair, pc.interaction_energies_for_ph[pair])
 
-    keys = pc.residue_variables.keys()
+    keys = list(pc.residue_variables.keys())
     keys.sort()
 
     for key in keys:

@@ -1,0 +1,13 @@
+pdb2pka Background Energy File
+Format 1.0
+TERMINAL GROUP:
+  53 MET  (  53  ) A       0.1732
+  55 ARG  (  55  ) A       0.0544
+  65 LYS  (  65  ) A      -0.1439
+  70 LYS  (  70  ) A       0.8769
+  71 LYS  (  71  ) A      -3.4410
+  72 GLU  (  72  ) A      -0.1364
+  73 LYS  (  73  ) A       0.0657
+TERMINAL GROUP:
+  76 PHE  (  76  ) A       0.1473
+End of file

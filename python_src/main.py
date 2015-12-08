@@ -5,6 +5,9 @@
 '''
 
 import sys
+import sys
+if sys.version_info < (3, 4):
+    raise OSError("Python 3.4 or greater is required")
 import os
 
 from argparse import ArgumentParser
@@ -124,7 +127,7 @@ USAGE
             #tests.test_adding_ph(protein)
 
         return 0
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt as e:
         ### handle keyboard interrupt ###
         if DEBUG:
             raise(e)

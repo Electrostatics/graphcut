@@ -54,9 +54,9 @@ class Protein(object):
             if flipped_inter_avg is not None:
                 diff = abs(inter_avg - flipped_inter_avg)
                 if diff > 0.0:
-                    print group1_type, group1_chain, group1_loc, group1_state
-                    print group2_type, group2_chain, group2_loc, group2_state
-                    print "Difference:", diff
+                    print(group1_type, group1_chain, group1_loc, group1_state)
+                    print(group2_type, group2_chain, group2_loc, group2_state)
+                    print("Difference:", diff)
 
             else:
                 #This makes it easier to make test files and does not prevent
@@ -64,8 +64,8 @@ class Protein(object):
                 pc.interaction_energies[instance2, instance1] = inter_avg
 
         elif inter_avg != 0:
-            print "Non-zero interaction energy with self:", inter_avg
-            print group1_type, group1_chain, group1_loc, group1_state, group2_state
+            print("Non-zero interaction energy with self:", inter_avg)
+            print(group1_type, group1_chain, group1_loc, group1_state, group2_state)
 
 
     def ingest_desolv_or_background_file(self, file_obj):
