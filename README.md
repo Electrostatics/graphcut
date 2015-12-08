@@ -8,7 +8,7 @@ and now have a subdirectory <code>pdb2pka_output/</code>.
 
 Graph cut can be run by
 
-> python main.py -v <input path> <output path>
+> python main.py -v input path output path
 
 The option <code>-v</code> will print out pH value and the number of leftover residues to standard out.
 
