@@ -5,15 +5,14 @@ import math
 from pprint import pprint
 import sys
 
+# Use the number for R from https://en.wikipedia.org/wiki/Gas_constant
 gas_constant = 8.3144621
-#ln(10) * gas constant
-kln10 = math.log(10) * gas_constant
-# Degrees Kelvin
-T=300.0
-kln10_T = kln10  *T
-RT = 2479.0;
-RT_gas = RT * gas_constant
+Rln10 = math.log(10) * gas_constant
+T = 300.0
+Rln10_T = Rln10*T
+RT = gas_constant * T
 
+# TODO - figure out why modPkaHIP is hard-coded here!
 modPkaHIP = 6.6
 modPkaHIE = modPkaHIP
 modPkaHID = modPkaHIP
@@ -22,9 +21,7 @@ def print_pc_state(pc, normal_form, out_file):
     """Dump protein_complex state to out_file
        normal_form - Dump the normal form part of the state."""
     rv = pc.residue_variables
-
     ie = pc.normalized_interaction_energies if normal_form else pc.interaction_energies_for_ph
-
     for v_residue in rv.values():
         for v_instance in v_residue.instances.values():
             for w_residue in rv.values():
@@ -32,9 +29,7 @@ def print_pc_state(pc, normal_form, out_file):
                     continue
                 for w_instance in w_residue.instances.values():
                     out_file.write(str((v_instance, w_instance)) + " " + str(round(ie[v_instance, w_instance],4)) + '\n')
-
     keys = list(pc.residue_variables.keys())
-
     for key in keys:
         residue = pc.residue_variables[key]
         for instance in list(residue.instances.values()):
@@ -42,7 +37,6 @@ def print_pc_state(pc, normal_form, out_file):
                 out_file.write(str(instance) + " " + str(round(instance.energyNF,4)) + "\n")
             else:
                 out_file.write(str(instance) + " " + str(round(instance.energy_with_ph,4)) + "\n")
-
     if normal_form:
         out_file.write("Normalized constant energy: " + str(round(pc.normalized_constant_energy,4)) + "\n")
 
@@ -111,14 +105,11 @@ def get_titration_curves(protein_complex, state_file=None):
 
         if state_file is not None:
             state_file.write ("pH="+ str(pH)+"\n")
-
             state_file.write("REGULAR ENERGIES\n")
             protein_complex.energy_at_pH(pH)
             print_pc_state(protein_complex, False, state_file)
-
             state_file.write('\n')
             state_file.write("NORMAL FORM ENERGIES\n")
-
 
         protein_complex.normalize(pH)
 
@@ -171,12 +162,15 @@ def get_curve_values(protein_complex, labeling, pH):
             dge, dgd = protein_complex.evaluate_energy_diff_his(hie_residue, hid_residue, labeling,
                                                                  normal_form=True)
 
-            dge *= kln10_T
-            dgd *= kln10_T
+            # TODO - I don't understand where the ln10 is coming from in these expressions so I am
+            # removing it.
+            # dge *= Rln10_T
+            # dgd *= Rln10_T
 
             try:
-                dpkad = -math.log10(math.exp(dgd/RT_gas))
-                dpkae = -math.log10(math.exp(dge/RT_gas))
+                # TODO - I removed an extra divisor of RT since I deleted the equivalent multiplier above
+                dpkad = -math.log10(math.exp(dgd))
+                dpkae = -math.log10(math.exp(dge))
 
                 pkad = modPkaHIP + dpkad
                 pkae = modPkaHIP + dpkae
@@ -187,7 +181,7 @@ def get_curve_values(protein_complex, labeling, pH):
                 ThetaPEnerNumer = sys.float_info.min
                 ThetaPEnerDenom = sys.float_info.min
 
-                Gdeavg = (Gd+Ge)/2.0
+                Gdeavg = 0.5*(Gd+Ge)
 
                 if not labeling[hie_residue].protonated and labeling[hid_residue].protonated:
                     ThetaPEnerNumer = math.exp(-Ge)*aH
@@ -210,7 +204,7 @@ def get_curve_values(protein_complex, labeling, pH):
             #energy_diff = protonated_energy - depotonated_energy
             energy_diff = protein_complex.evaluate_energy_diff(residue, labeling, normal_form=True)
 
-            exp = -(energy_diff*kln10_T)/RT
+            exp = -(energy_diff)
             #Handle case where there is an unresolved bump.
             try:
                 e_exp = math.exp(exp)
@@ -220,8 +214,3 @@ def get_curve_values(protein_complex, labeling, pH):
             results[key] = titration_value
 
     return results
-
-
-
-
-

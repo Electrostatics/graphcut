@@ -1,12 +1,10 @@
-
 from itertools import combinations, product, permutations
-
 from collections import OrderedDict
-
 import sys
+import math
 
 titratable_residue_data = {
-                           "ARG": {"model_pka":13.0, "ionizable": 1, "tautomers":{"deprotonated":("1+2+3+4",), "protonated":("1+2+3+4+5",)}},
+                           "ARG": {"model_pka" : 13.0, "ionizable" : 1, "tautomers":{"deprotonated":("1+2+3+4",), "protonated":("1+2+3+4+5",)}},
                            "ASP": {"model_pka": 3.9, "ionizable":-1, "tautomers":{"protonated":("1", "2", "3", "4"), "deprotonated":("0",)}},
                            "GLU": {"model_pka": 4.1, "ionizable":-1, "tautomers":{"protonated":("1", "2", "3", "4"), "deprotonated":("0",)}},
                            "LYS": {"model_pka":10.4, "ionizable": 1, "tautomers":{"protonated":("1",), "deprotonated":("0",)}},
@@ -15,13 +13,10 @@ titratable_residue_data = {
                            "NTR": {"model_pka": 8.3, "ionizable": 1, "tautomers":{"deprotonated":("1", "2"), "protonated":("1+2",)}},
                            "HIS": {"model_pka": 6.6, "ionizable": 1, "tautomers":{"protonated":("1", "2"), "deprotonated":("1+2",)}},
                           }
-
-
 all_tautomers = set()
 for residue_data in titratable_residue_data.values():
     all_tautomers.update(residue_data["tautomers"]["deprotonated"])
     all_tautomers.update(residue_data["tautomers"]["protonated"])
-
 state_to_tautomer = {}
 for state in ("ASH1c", "GLH1c", "LYS", "TYR", "HSD", "H3", "CTR01c"):
     state_to_tautomer[state] = "1"
@@ -33,14 +28,10 @@ for state in ("ASH2t", "GLH2t", "CTR02t"):
     state_to_tautomer[state] = "4"
 for state in ("ASP", "GLU", "LYS0", "TYR-", "CTR-"):
     state_to_tautomer[state] = "0"
-
 state_to_tautomer["ARG0"] = "1+2+3+4"
 state_to_tautomer["ARG"] = "1+2+3+4+5"
-
 for state in ("HSP", "H3+H2"):
     state_to_tautomer[state] = "1+2"
-
-
 
 class ResidueInstance(object):
     """Storage class for information about a particular residue state."""
@@ -70,7 +61,6 @@ class ResidueInstance(object):
         return self._get_self_comp_tuple() <= other._get_self_comp_tuple()
     def _get_self_comp_tuple(self):
         return (self.name, self.energy)
-
 
 class ResidueVariable(object):
     """Storage class all information about a particular residue
@@ -108,7 +98,6 @@ class ResidueVariable(object):
     def __le__(self, other):
         return self.name <= other.name
 
-
 class ProteinComplex(object):
     def __init__(self, T=300):
         self.T = T
@@ -129,7 +118,6 @@ class ProteinComplex(object):
             tautomers = residue_data["tautomers"]
             model_pka = residue_data["model_pka"]
 
-
             for tautomer in tautomers["deprotonated"]:
                 instance = ResidueInstance(False, base_name+tautomer)
                 #instance.energy = 0
@@ -137,7 +125,7 @@ class ProteinComplex(object):
 
             for tautomer in tautomers["protonated"]:
                 instance = ResidueInstance(True, base_name+tautomer)
-                instance.energy = -model_pka
+                instance.energy = -1.0*math.log(10)*model_pka
                 res_var.instances[tautomer] = instance
 
             if residue_type != "HIS":
@@ -181,16 +169,12 @@ class ProteinComplex(object):
         ie[instance1, instance2] = energy
         ie[instance2, instance1] = energy
 
-
     def simplify(self):
         """Simplify the instances into protonated and deprotonated.
            Also divides HIS into HID and HIE."""
         self.update_special_instance_energies()
         self.consolidate()
-
         self.divide_his()
-
-
 
     def update_special_instance_energies(self):
         """After we have loaded the backgroind and desolvation files we need to
@@ -688,7 +672,8 @@ class ProteinComplex(object):
         #Add the pH to the instances.
         for residue in self.residue_variables.values():
             residue.instances["DEPROTONATED"].energyNF = residue.instances["DEPROTONATED"].energy
-            residue.instances["PROTONATED"].energyNF = residue.instances["PROTONATED"].energy + pH
+            # TODO - I'm not sure why this is +pH....
+            residue.instances["PROTONATED"].energyNF = residue.instances["PROTONATED"].energy + math.log(10)*pH
 
 
         rv = self.residue_variables
@@ -704,8 +689,8 @@ class ProteinComplex(object):
             if is_same_his:
                 v_prot = v_residue.instances["PROTONATED"]
                 w_prot = w_residue.instances["PROTONATED"]
-                self.normalized_interaction_energies[v_prot, w_prot] -= 2.0*pH
-                self.normalized_interaction_energies[w_prot, v_prot] -= 2.0*pH
+                self.normalized_interaction_energies[v_prot, w_prot] -= (2.0*math.log(10)*pH)
+                self.normalized_interaction_energies[w_prot, v_prot] -= (2.0*math.log(10)*pH)
 
 
         #Normalize the interaction energies.
@@ -740,8 +725,7 @@ class ProteinComplex(object):
 
         for residue in self.residue_variables.values():
             residue.instances["DEPROTONATED"].energy_with_ph = residue.instances["DEPROTONATED"].energy
-            residue.instances["PROTONATED"].energy_with_ph = residue.instances["PROTONATED"].energy + pH
-
+            residue.instances["PROTONATED"].energy_with_ph = residue.instances["PROTONATED"].energy + math.log(10)*pH
 
         for v, w in combinations(iter(self.residue_variables.items()), 2):
             v_key, v_residue = v
@@ -751,5 +735,5 @@ class ProteinComplex(object):
             if is_same_his:
                 v_prot = v_residue.instances["PROTONATED"]
                 w_prot = w_residue.instances["PROTONATED"]
-                self.interaction_energies_for_ph[v_prot, w_prot] -= 2.0*pH
-                self.interaction_energies_for_ph[w_prot, v_prot] -= 2.0*pH
+                self.interaction_energies_for_ph[v_prot, w_prot] -= (2.0*math.log(10)*pH)
+                self.interaction_energies_for_ph[w_prot, v_prot] -= (2.0*math.log(10)*pH)
