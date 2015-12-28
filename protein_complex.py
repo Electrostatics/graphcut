@@ -120,7 +120,7 @@ class ProteinComplex(object):
 
             for tautomer in tautomers["deprotonated"]:
                 instance = ResidueInstance(False, base_name+tautomer)
-                #instance.energy = 0
+                instance.energy = 0
                 res_var.instances[tautomer] = instance
 
             for tautomer in tautomers["protonated"]:
@@ -674,7 +674,6 @@ class ProteinComplex(object):
             residue.instances["DEPROTONATED"].energyNF = residue.instances["DEPROTONATED"].energy
             # TODO - I'm not sure why this is +pH....
             residue.instances["PROTONATED"].energyNF = residue.instances["PROTONATED"].energy + math.log(10)*pH
-
 
         rv = self.residue_variables
         keys = list(rv.keys())

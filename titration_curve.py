@@ -89,19 +89,17 @@ def get_titration_curves(protein_complex, state_file=None):
            Calculate the curve value for each residue
 
         Returns results for all residues for each ph."""
+
     curves = defaultdict(list)
-
     pg = ProteinGraph(protein_complex)
-
     pH = 0.0
     step_size = 0.1
     end_ph = 20.0
     steps = int(end_ph / step_size) + 1
 
     for step in range(steps):
-        pH = step * 0.1
+        pH = step * step_size
         print("pH", pH)
-        #print "Processing pH:", pH
 
         if state_file is not None:
             state_file.write ("pH="+ str(pH)+"\n")
@@ -125,7 +123,6 @@ def get_titration_curves(protein_complex, state_file=None):
 
         cv, s_nodes, t_nodes = pg.get_cut()
         labeling, uncertain = pg.get_labeling_from_cut(s_nodes, t_nodes)
-
         new_labeling = resolve_uncertainty(protein_complex, labeling, uncertain, verbose=True)
 
         curve_values = get_curve_values(protein_complex, new_labeling, pH)
@@ -149,7 +146,6 @@ def get_curve_values(protein_complex, labeling, pH):
             #Do HIS stuff
             if (chain, location) in his_seen:
                 continue
-
             his_seen.add((chain, location))
 
             if name == "HId":
@@ -159,45 +155,52 @@ def get_curve_values(protein_complex, labeling, pH):
                 hie_residue = residue
                 hid_residue = protein_complex.residue_variables["HId", chain, location]
 
-            dge, dgd = protein_complex.evaluate_energy_diff_his(hie_residue, hid_residue, labeling,
-                                                                 normal_form=True)
+            # dge = HSP - HSE, dgd = HSP - HSD
+            class Energies:
+                pass
+            energies = Energies()
+            energies.aH = aH
+            energies.dGdref = modPkaHID*math.log(10.0)
+            energies.dGeref = modPkaHIE*math.log(10.0)
+            energies.dGe, energies.dGd = protein_complex.evaluate_energy_diff_his(hie_residue, hid_residue, labeling,
+                                                                normal_form=True)
 
-            # TODO - I don't understand where the ln10 is coming from in these expressions so I am
-            # removing it.
-            # dge *= Rln10_T
-            # dgd *= Rln10_T
+            debug_craziness = False
+            if debug_craziness:
+                print("!!! DEBUG - SETTING dGd from %g to 0.0" % energies.dGd)
+                energies.dGd = 0
+                print("!!! DEBUG - SETTING dGe from %g to 0.0" % energies.dGe)
+                energies.dGe = 0
+            else:
+                old = energies.dGd
+                energies.dGd =  energies.dGd - math.log(aH) - energies.dGdref
+                #print("Removed extra pH and pKa contributions from dGd: %g -> %g" % (old, energies.dGd))
+                old = energies.dGe
+                energies.dGe =  energies.dGe - math.log(aH) - energies.dGeref
+                #print("Removing extra pH and pKa contributions from dGe: %g -> %g" % (old, energies.dGe))
+            energies.ddG = (energies.dGe + energies.dGeref) - (energies.dGd + energies.dGdref)
+            energies.dGp = energies.dGd - energies.dGdref
+            #print(vars(energies))
+            pHSD = 1.0
+            pHSE = math.exp(-energies.ddG)
+            pHSP = energies.aH*math.exp(-energies.dGp)
+            Q = pHSD + pHSE + pHSP
+            fracHSD = pHSD/Q
+            fracHSE = pHSE/Q
+            fracHSP = pHSP/Q
 
-            try:
-                # TODO - I removed an extra divisor of RT since I deleted the equivalent multiplier above
-                dpkad = -math.log10(math.exp(dgd))
-                dpkae = -math.log10(math.exp(dge))
-
-                pkad = modPkaHIP + dpkad
-                pkae = modPkaHIP + dpkae
-
-                Gd = -math.log(math.pow(10, pkad))
-                Ge = -math.log(math.pow(10, pkae))
-
-                ThetaPEnerNumer = sys.float_info.min
-                ThetaPEnerDenom = sys.float_info.min
-
-                Gdeavg = 0.5*(Gd+Ge)
-
-                if not labeling[hie_residue].protonated and labeling[hid_residue].protonated:
-                    ThetaPEnerNumer = math.exp(-Ge)*aH
-                    ThetaPEnerDenom = 1.0+math.exp(-(Gd-Ge))+math.exp(-Ge)*aH
-                elif labeling[hie_residue].protonated and not labeling[hid_residue].protonated:
-                    ThetaPEnerNumer = math.exp(-Gd)*aH
-                    ThetaPEnerDenom = 1.0+math.exp(-(Gd-Ge))+math.exp(-Gd)*aH
-                elif labeling[hie_residue].protonated and labeling[hid_residue].protonated:
-                    ThetaPEnerNumer = math.exp(-Gdeavg)*aH
-                    ThetaPEnerDenom = 1.0+math.exp(-(Gd-Ge))+math.exp(-Gdeavg)*aH
-
-                titration_value = ThetaPEnerNumer/ThetaPEnerDenom
-            except OverflowError:
-                titration_value = 1.0
-
-            results["HIS", chain, location] = titration_value
+            # if not labeling[hie_residue].protonated and labeling[hid_residue].protonated:
+            #     titration_value = fracHSD
+            # elif labeling[hie_residue].protonated and not labeling[hid_residue].protonated:
+            #     titration_value = fracHSE
+            # elif labeling[hie_residue].protonated and labeling[hid_residue].protonated:
+            #     titration_value = fracHSP
+            # else:
+            #     errstr = "How did we get here?"
+            #     raise RuntimeError(errstr)
+            results["HIS", chain, location] = fracHSP
+            results["HSE", chain, location] = fracHSE
+            results["HSD", chain, location] = fracHSD
 
         else:
             #Do not HIS stuff
