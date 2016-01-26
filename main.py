@@ -83,12 +83,16 @@ USAGE
 
         try:
             if verbose > 0:
-                print("Creating output directory")
+                print("Creating output directory: {0}".format( output_path) )
             os.makedirs(output_path)
         except os.error:
             if verbose > 0:
-                print("Output directory already exists.")
+                print("Output directory already exists: {0}". format( output_path ) )
 
+        #
+	#  read in INTERACTION_MATRIX.DAT, BACKGR.DAT, DESOLV.DAT 
+	#   (created when pdb2pqk is run)
+	#
         interaction_filepath = os.path.join(input_path, INTERACTION_BASE_FILENAME)
         background_filepath = os.path.join(input_path, BACKGROUND_BASE_FILENAME)
         desolvation_filepath = os.path.join(input_path, DESOLVATION_BASE_FILENAME)
@@ -102,6 +106,9 @@ USAGE
         if dump_state:
             state_file = open(os.path.join(output_path, "state.txt"), 'w')
 
+        #
+	#  Call graph cut!
+	#
         start = datetime.now()
         curves = get_titration_curves(protein.protein_complex, state_file)
         end = datetime.now()
@@ -116,6 +123,9 @@ USAGE
         if dump_state:
             state_file.close()
 
+        #
+	#  Write out titration curves
+	#
         create_output(output_path, curves)
 
         #pprint(dict(curves))
